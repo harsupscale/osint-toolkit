@@ -64,10 +64,63 @@ app.post('/api/leak-search', async (req, res) => {
             return res.status(400).json({ error: data.error });
         }
 
+        // Detect expired/invalid token responses
+        if (data.NumOfResults === undefined && data.NumOfDatabase === undefined && data.List === undefined) {
+            return res.status(400).json({ error: 'Invalid API response. Token may be expired. Please update LEAK_API_TOKEN in .env' });
+        }
+
+        // Detect empty/failed search
+        if (data.NumOfDatabase === 'N/A' || data.NumOfDatabase === undefined) {
+            return res.status(400).json({ error: 'API returned incomplete data. Token may be expired or invalid.' });
+        }
+
         res.json(data);
     } catch (err) {
         console.error('Leak search error:', err.message);
         res.status(500).json({ error: `API Error: ${err.message}` });
+    }
+});
+
+// IP Lookup proxy
+app.get('/api/ip-lookup/:ip', async (req, res) => {
+    const ip = req.params.ip;
+    try {
+        const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,mobile,proxy,hosting,query`);
+        const data = await response.json();
+        if (data.status === 'fail') {
+            return res.status(400).json({ error: data.message || 'Invalid IP' });
+        }
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: `IP lookup failed: ${err.message}` });
+    }
+});
+
+// Email domain info proxy
+app.get('/api/email-domain/:domain', async (req, res) => {
+    const domain = req.params.domain;
+    try {
+        const response = await fetch(`http://ip-api.com/json/${domain}?fields=status,message,country,countryCode,regionName,city,isp,org,as,query`);
+        const data = await response.json();
+        if (data.status === 'fail') {
+            return res.status(400).json({ error: data.message || 'Invalid domain' });
+        }
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: `Domain lookup failed: ${err.message}` });
+    }
+});
+
+// DNS Lookup proxy
+app.get('/api/dns-lookup', async (req, res) => {
+    const { name, type } = req.query;
+    if (!name) return res.status(400).json({ error: 'Domain name is required' });
+    try {
+        const response = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(name)}&type=${type || 'A'}`);
+        const data = await response.json();
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: `DNS lookup failed: ${err.message}` });
     }
 });
 
