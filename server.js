@@ -16,13 +16,30 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json());
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 60 * 1000,
-    max: 100,
-    message: { error: 'Too many requests. Try again in a minute.' }
-});
-app.use('/api/', limiter);
+// No server-side rate limiting - API provider handles its own limits
+
+// Blocked numbers - inke results nahi dikhenge 😎
+const blockedNumbers = {
+    '919634816397': [
+        "Ain't no way bruh 💀 made a website and bro started OSINTing my number 😭",
+        "Bro really thought he could find my leaks 💀🫵 nah bro nah"
+    ],
+    '919997534247': [
+        "Nah twin this info locked 🔒"
+    ],
+    '917906648681': [
+        "Twin you thought 💀 nah nah nah"
+    ],
+    '917906370607': [
+        "Sorry twin but nah 💅✨"
+    ],
+    '919012228093': [
+        "Lol twin really tried 💀🔒"
+    ],
+    '919045501889': [
+        "You're safe here twin 🔒✨"
+    ]
+};
 
 // Serve static files
 app.use(express.static(path.join(__dirname)));
@@ -38,6 +55,15 @@ app.post('/api/leak-search', async (req, res) => {
 
     if (!query || !query.trim()) {
         return res.status(400).json({ error: 'Search query is required' });
+    }
+
+    // Check if number is blocked
+    const cleanQuery = query.replace(/[^0-9]/g, '');
+    for (const [blockedNum, msgs] of Object.entries(blockedNumbers)) {
+        if (cleanQuery.includes(blockedNum) || blockedNum.includes(cleanQuery)) {
+            const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+            return res.status(403).json({ error: randomMsg, blocked: true });
+        }
     }
 
     const token = process.env.LEAK_API_TOKEN;
