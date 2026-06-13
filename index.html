@@ -120,6 +120,11 @@
                 <span class="tool-name">IP Lookup</span>
                 <span class="tool-desc-mini">Trace & geolocate</span>
             </a>
+            <a href="#phone-lookup" class="tool-grid-item">
+                <div class="tool-icon"><i class="fas fa-phone"></i></div>
+                <span class="tool-name">Phone</span>
+                <span class="tool-desc-mini">Number investigation</span>
+            </a>
             <a href="#email-lookup" class="tool-grid-item">
                 <div class="tool-icon"><i class="fas fa-envelope"></i></div>
                 <span class="tool-name">Email Lookup</span>
@@ -150,11 +155,6 @@
                 <span class="tool-name">Leak Search</span>
                 <span class="tool-desc-mini">Breach data scan</span>
             </a>
-            <a href="#phone-lookup" class="tool-grid-item">
-                <div class="tool-icon"><i class="fas fa-phone"></i></div>
-                <span class="tool-name">Phone</span>
-                <span class="tool-desc-mini">Number investigation</span>
-            </a>
         </div>
     </section>
 
@@ -179,6 +179,28 @@
                     <button onclick="lookupIP()"><i class="fas fa-arrow-right"></i> Lookup</button>
                 </div>
                 <div class="result-box" id="ipResult"></div>
+            </div>
+        </section>
+
+        <!-- Phone Number Lookup -->
+        <section class="tool-card" id="phone-lookup">
+            <div class="tool-card-header">
+                <div class="tool-card-icon"><i class="fas fa-phone"></i></div>
+                <div class="tool-card-title">
+                    <h2>Phone Number Lookup</h2>
+                    <p>Search phone number leaks from breached databases</p>
+                </div>
+            </div>
+            <div class="tool-card-body">
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <i class="fas fa-mobile-screen input-icon"></i>
+                        <input type="tel" id="phoneInput"
+                            placeholder="Enter phone with country code (e.g. +919876543210)">
+                    </div>
+                    <button onclick="lookupPhone()"><i class="fas fa-arrow-right"></i> Lookup</button>
+                </div>
+                <div class="result-box" id="phoneResult"></div>
             </div>
         </section>
 
@@ -314,28 +336,6 @@
                     <button onclick="searchLeaks()"><i class="fas fa-arrow-right"></i> Search</button>
                 </div>
                 <div class="result-box" id="leakResult"></div>
-            </div>
-        </section>
-
-        <!-- Phone Number Lookup -->
-        <section class="tool-card" id="phone-lookup">
-            <div class="tool-card-header">
-                <div class="tool-card-icon"><i class="fas fa-phone"></i></div>
-                <div class="tool-card-title">
-                    <h2>Phone Number Lookup</h2>
-                    <p>Search phone number leaks from breached databases</p>
-                </div>
-            </div>
-            <div class="tool-card-body">
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <i class="fas fa-mobile-screen input-icon"></i>
-                        <input type="tel" id="phoneInput"
-                            placeholder="Enter phone with country code (e.g. +919876543210)">
-                    </div>
-                    <button onclick="lookupPhone()"><i class="fas fa-arrow-right"></i> Lookup</button>
-                </div>
-                <div class="result-box" id="phoneResult"></div>
             </div>
         </section>
 
