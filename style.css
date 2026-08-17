@@ -555,6 +555,7 @@ body {
     border-radius: 16px;
     padding: 0.5rem;
     transition: border-color 0.2s ease;
+    overflow: hidden;
 }
 
 .hero-search-box:focus-within {
@@ -2131,7 +2132,8 @@ body {
     .hero-cta { flex-direction: column; align-items: center; }
     .btn-primary, .btn-secondary { width: 100%; max-width: 280px; justify-content: center; }
 
-    .hero-search-box input { font-size: 0.82rem; }
+    .hero-search-box input { font-size: 0.82rem; min-width: 0; }
+    .hero-search-box { min-width: 0; }
     .hero-search-tags { flex-wrap: wrap; justify-content: center; }
 
     .iso-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
@@ -2142,7 +2144,7 @@ body {
 
     .iso-grid-section { padding: 0 1rem 2rem; }
 
-    .board-container { height: 400px; }
+    .board-container { height: auto; min-height: 0; overflow: visible; }
     .board-lines { display: none; }
     .board-node { position: relative !important; top: auto !important; left: auto !important; }
     .board-center { transform: none; }
@@ -2150,10 +2152,9 @@ body {
     .node-pulse { display: none; }
     .board-container {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
         padding: 1rem;
-        height: auto;
     }
     .board-node { align-items: center; text-align: center; }
 
@@ -2218,4 +2219,8 @@ body {
     .iso-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .iso-card { height: 130px; }
     .iso-card-top { padding: 1rem; }
+    .board-container { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; padding: 0.75rem; }
+    .node-icon { width: 48px; height: 48px; font-size: 1.1rem; }
+    .node-label { font-size: 0.65rem; }
+    .node-tag { font-size: 0.5rem; }
 }
