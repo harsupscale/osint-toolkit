@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* ===== DARK THEME (DEFAULT) ===== */
 [data-theme="dark"] {
@@ -193,18 +193,20 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
 }
 
 .nav-brand {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Audiowide', 'Space Grotesk', sans-serif;
     font-size: 1.2rem;
-    font-weight: 700;
+    font-weight: 400;
     color: var(--text-primary);
     letter-spacing: -0.5px;
     text-decoration: none;
+    z-index: 2;
 }
 
 .nav-logo {
@@ -229,18 +231,29 @@ body {
 
 .nav-links {
     display: flex;
+    align-items: center;
     gap: 0.25rem;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .nav-links a {
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.82rem;
-    font-weight: 600;
-    padding: 0.5rem 0.85rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
     border-radius: 8px;
     transition: all 0.2s ease;
     position: relative;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}
+
+.nav-links a i {
+    font-size: 0.9rem;
 }
 
 .nav-links a:hover {
@@ -269,6 +282,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-left: 1rem;
 }
 
 .theme-toggle {
@@ -367,7 +381,7 @@ body {
 
 /* ===== HERO ===== */
 .hero {
-    padding: 9rem 2rem 5rem;
+    padding: 9rem 2rem 0.5rem;
     text-align: center;
     position: relative;
     z-index: 1;
@@ -454,9 +468,9 @@ body {
 }
 
 .hero h1 {
-    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-family: 'Audiowide', 'Space Grotesk', sans-serif;
     font-size: 4.8rem;
-    font-weight: 700;
+    font-weight: 400;
     color: var(--text-primary);
     margin-bottom: 1.25rem;
     letter-spacing: -2.5px;
@@ -539,11 +553,11 @@ body {
     gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
 }
 
 .hero-search {
-    max-width: 650px;
+    max-width: 600px;
     margin: 0 auto;
 }
 
@@ -624,6 +638,17 @@ body {
 .hero-search-tags a:hover {
     background: var(--accent);
     color: #000;
+}
+
+.hero-result {
+    max-width: 650px;
+    margin: 1rem auto 0;
+    display: none;
+}
+
+.hero-result.active {
+    display: block;
+    animation: resultSlideIn 0.3s ease;
 }
 
 .btn-primary {
@@ -2135,6 +2160,7 @@ body {
     .hero-search-box input { font-size: 0.82rem; min-width: 0; }
     .hero-search-box { min-width: 0; }
     .hero-search-tags { flex-wrap: wrap; justify-content: center; }
+    .hero-result { margin-top: 1rem; }
 
     .iso-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
     .iso-card { height: 150px; }

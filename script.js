@@ -77,33 +77,140 @@ function initParallax() {
 }
 initParallax();
 
-// ===== HERO SEARCH =====
-function heroSearchAction() {
+// ===== HERO SEARCH (same page) =====
+async function heroSearchAction() {
     const query = document.getElementById('heroSearch')?.value.trim();
     if (!query) return showToast('Enter something to search');
+
+    const resultBox = document.getElementById('heroResult');
+    if (!resultBox) return;
+
+    resultBox.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Searching...</div>';
+    resultBox.classList.add('active');
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
     const phoneRegex = /^\+?[\d\s-]{7,15}$/;
 
-    if (emailRegex.test(query)) {
-        window.location.href = 'identity.html';
-    } else if (ipRegex.test(query)) {
-        window.location.href = 'network.html';
-    } else if (phoneRegex.test(query)) {
-        window.location.href = 'identity.html';
-    } else if (query.includes('.') && !query.includes(' ')) {
-        window.location.href = 'network.html';
-    } else {
-        window.location.href = 'leaks.html';
+    try {
+        if (emailRegex.test(query)) {
+            const domain = query.split('@')[1];
+            const res = await fetch(`/api/email-domain/${domain}`);
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            resultBox.innerHTML = `
+                <div class="result-box active">
+                    <div class="result-actions"><button onclick="copyToClipboard('${query}', event)"><i class="fas fa-copy"></i> Copy</button></div>
+                    <table>
+                        <tr><th>Email</th><td>${query}</td></tr>
+                        <tr><th>Domain</th><td>${domain}</td></tr>
+                        <tr><th>Country</th><td>${data.country || 'N/A'} (${data.countryCode || ''})</td></tr>
+                        <tr><th>Region</th><td>${data.regionName || 'N/A'}, ${data.city || 'N/A'}</td></tr>
+                        <tr><th>ISP</th><td>${data.isp || 'N/A'}</td></tr>
+                        <tr><th>Org</th><td>${data.org || 'N/A'}</td></tr>
+                        <tr><th>AS</th><td>${data.as || 'N/A'}</td></tr>
+                    </table>
+                </div>`;
+        } else if (ipRegex.test(query)) {
+            const res = await fetch(`/api/ip-lookup/${query}`);
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            resultBox.innerHTML = `
+                <div class="result-box active">
+                    <div class="result-actions"><button onclick="copyToClipboard('${query}', event)"><i class="fas fa-copy"></i> Copy</button></div>
+                    <table>
+                        <tr><th>IP</th><td>${data.query}</td></tr>
+                        <tr><th>Country</th><td>${data.country || 'N/A'} (${data.countryCode || ''})</td></tr>
+                        <tr><th>Region</th><td>${data.regionName || 'N/A'}, ${data.city || 'N/A'}</td></tr>
+                        <tr><th>ZIP</th><td>${data.zip || 'N/A'}</td></tr>
+                        <tr><th>Coords</th><td>${data.lat || 'N/A'}, ${data.lon || 'N/A'}</td></tr>
+                        <tr><th>Timezone</th><td>${data.timezone || 'N/A'}</td></tr>
+                        <tr><th>ISP</th><td>${data.isp || 'N/A'}</td></tr>
+                        <tr><th>Org</th><td>${data.org || 'N/A'}</td></tr>
+                        <tr><th>AS</th><td>${data.as || 'N/A'}</td></tr>
+                        <tr><th>Mobile</th><td>${data.mobile ? '<span class="tag tag-warn">Yes</span>' : '<span class="tag tag-safe">No</span>'}</td></tr>
+                        <tr><th>Proxy</th><td>${data.proxy ? '<span class="tag tag-danger">Yes</span>' : '<span class="tag tag-safe">No</span>'}</td></tr>
+                        <tr><th>Hosting</th><td>${data.hosting ? '<span class="tag tag-info">Yes</span>' : '<span class="tag tag-safe">No</span>'}</td></tr>
+                    </table>
+                </div>`;
+        } else if (phoneRegex.test(query)) {
+            const clean = query.replace(/[^0-9]/g, '');
+            const res = await fetch('/api/leak-search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: clean, limit: 50 })
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            let rows = '';
+            if (data.List) {
+                for (const [db, entries] of Object.entries(data.List)) {
+                    if (entries && entries.length > 0) {
+                        rows += `<tr><th>${db}</th><td>${entries.map(e => typeof e === 'string' ? e : JSON.stringify(e)).join(', ')}</td></tr>`;
+                    }
+                }
+            }
+            resultBox.innerHTML = `
+                <div class="result-box active">
+                    <div class="result-actions"><button onclick="copyToClipboard('${query}', event)"><i class="fas fa-copy"></i> Copy</button></div>
+                    <table>
+                        <tr><th>Query</th><td>${query}</td></tr>
+                        <tr><th>Databases</th><td>${data.NumOfDatabase || 'N/A'}</td></tr>
+                        <tr><th>Results</th><td>${data.NumOfResults || 'N/A'}</td></tr>
+                        ${rows || '<tr><th>Status</th><td>No leak data found</td></tr>'}
+                    </table>
+                </div>`;
+        } else if (query.includes('.') && !query.includes(' ')) {
+            const res = await fetch(`/api/dns-lookup?name=${encodeURIComponent(query)}&type=A`);
+            const data = await res.json();
+            let answers = '';
+            if (data.Answer) {
+                answers = data.Answer.map(a => a.data).join(', ');
+            }
+            resultBox.innerHTML = `
+                <div class="result-box active">
+                    <div class="result-actions"><button onclick="copyToClipboard('${query}', event)"><i class="fas fa-copy"></i> Copy</button></div>
+                    <table>
+                        <tr><th>Domain</th><td>${query}</td></tr>
+                        <tr><th>Status</th><td>${data.Status === 0 ? '<span class="tag tag-safe">NoError</span>' : '<span class="tag tag-danger">Error</span>'}</td></tr>
+                        <tr><th>A Records</th><td>${answers || 'None'}</td></tr>
+                    </table>
+                </div>`;
+        } else {
+            const res = await fetch('/api/leak-search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query, limit: 50 })
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            let rows = '';
+            if (data.List) {
+                for (const [db, entries] of Object.entries(data.List)) {
+                    if (entries && entries.length > 0) {
+                        rows += `<tr><th>${db}</th><td>${entries.map(e => typeof e === 'string' ? e : JSON.stringify(e)).join(', ')}</td></tr>`;
+                    }
+                }
+            }
+            resultBox.innerHTML = `
+                <div class="result-box active">
+                    <div class="result-actions"><button onclick="copyToClipboard('${query}', event)"><i class="fas fa-copy"></i> Copy</button></div>
+                    <table>
+                        <tr><th>Query</th><td>${query}</td></tr>
+                        <tr><th>Databases</th><td>${data.NumOfDatabase || 'N/A'}</td></tr>
+                        <tr><th>Results</th><td>${data.NumOfResults || 'N/A'}</td></tr>
+                        ${rows || '<tr><th>Status</th><td>No data found</td></tr>'}
+                    </table>
+                </div>`;
+        }
+    } catch (err) {
+        resultBox.innerHTML = `<div class="result-box active"><div class="error"><i class="fas fa-exclamation-circle"></i> ${err.message}</div></div>`;
     }
 }
 
 document.getElementById('heroSearch')?.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') heroSearchAction();
 });
-
-// ===== MOBILE MENU =====
 document.getElementById('hamburger')?.addEventListener('click', () => {
     document.getElementById('mobileMenu').classList.toggle('active');
 });

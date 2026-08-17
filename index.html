@@ -26,6 +26,7 @@
                 <span>OSINT<span class="accent">Toolkit</span></span>
             </a>
             <div class="nav-links">
+                <a href="index.html">Home</a>
                 <a href="network.html">Network</a>
                 <a href="identity.html">Identity</a>
                 <a href="leaks.html">Leaks</a>
@@ -43,6 +44,7 @@
 
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
+        <a href="index.html"><i class="fas fa-home"></i> Home</a>
         <a href="network.html"><i class="fas fa-network-wired"></i> Network Tools</a>
         <a href="identity.html"><i class="fas fa-user-secret"></i> Identity Tools</a>
         <a href="leaks.html"><i class="fas fa-database"></i> Leak Search</a>
@@ -57,7 +59,7 @@
                 <span>Cybersecurity OSINT Framework</span>
             </div>
             <div class="hero-avatar">
-                <img src="pfp.jpg" alt="Harsh">
+                <img src="new.jpg" alt="Harsh">
                 <div class="avatar-ring"></div>
             </div>
             <h1>OSINT <span class="accent">Toolkit</span></h1>
@@ -110,105 +112,9 @@
                     <a href="leaks.html">Breach</a>
                 </div>
             </div>
+            <div class="hero-result" id="heroResult"></div>
         </div>
     </header>
-
-    <!-- Investigation Board -->
-    <section class="investigation-board" id="tool-grid">
-        <div class="section-header">
-            <h2>Investigation <span class="accent">Board</span></h2>
-            <p>Select a node to begin your investigation</p>
-        </div>
-        <div class="board-container">
-            <!-- SVG Connection Lines -->
-            <svg class="board-lines" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet">
-                <defs>
-                    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#00b4ff;stop-opacity:0.1" />
-                        <stop offset="50%" style="stop-color:#00b4ff;stop-opacity:0.4" />
-                        <stop offset="100%" style="stop-color:#00b4ff;stop-opacity:0.1" />
-                    </linearGradient>
-                </defs>
-                <!-- Center to top row -->
-                <line x1="500" y1="250" x2="150" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
-                <line x1="500" y1="250" x2="380" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
-                <line x1="500" y1="250" x2="620" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
-                <line x1="500" y1="250" x2="850" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
-                <!-- Center to bottom row -->
-                <line x1="500" y1="250" x2="150" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
-                <line x1="500" y1="250" x2="380" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
-                <line x1="500" y1="250" x2="620" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
-                <line x1="500" y1="250" x2="850" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
-                <!-- Horizontal connections top -->
-                <line x1="150" y1="100" x2="380" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
-                <line x1="380" y1="100" x2="620" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
-                <line x1="620" y1="100" x2="850" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
-                <!-- Horizontal connections bottom -->
-                <line x1="150" y1="400" x2="380" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
-                <line x1="380" y1="400" x2="620" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
-                <line x1="620" y1="400" x2="850" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
-            </svg>
-
-            <!-- Center Hub -->
-            <a href="leaks.html" class="board-node board-center">
-                <div class="node-pulse"></div>
-                <div class="node-icon"><i class="fas fa-crosshairs"></i></div>
-                <span class="node-label">OSINT<br>Hub</span>
-            </a>
-
-            <!-- Top Row -->
-            <a href="network.html" class="board-node" style="top: 5%; left: 5%;">
-                <div class="node-dot"></div>
-                <div class="node-icon"><i class="fas fa-globe"></i></div>
-                <span class="node-label">IP Lookup</span>
-                <span class="node-tag">Network</span>
-            </a>
-            <a href="identity.html" class="board-node" style="top: 5%; left: 30%;">
-                <div class="node-dot"></div>
-                <div class="node-icon"><i class="fas fa-phone"></i></div>
-                <span class="node-label">Phone Lookup</span>
-                <span class="node-tag">Identity</span>
-            </a>
-            <a href="identity.html" class="board-node" style="top: 5%; left: 55%;">
-                <div class="node-dot"></div>
-                <div class="node-icon"><i class="fas fa-envelope"></i></div>
-                <span class="node-label">Email Lookup</span>
-                <span class="node-tag">Identity</span>
-            </a>
-            <a href="identity.html" class="board-node" style="top: 5%; left: 80%;">
-                <div class="node-dot"></div>
-                <div class="node-icon"><i class="fas fa-user-check"></i></div>
-                <span class="node-label">Email Platforms</span>
-                <span class="node-tag">Identity</span>
-            </a>
-
-            <!-- Bottom Row -->
-            <a href="identity.html" class="board-node" style="top: 72%; left: 5%;">
-                <div class="node-dot"></div>
-                <div class="node-icon"><i class="fas fa-at"></i></div>
-                <span class="node-label">Username</span>
-                <span class="node-tag">Identity</span>
-            </a>
-            <a href="network.html" class="board-node" style="top: 72%; left: 30%;">
-                <div class="node-dot"></div>
-                <div class="node-icon"><i class="fas fa-server"></i></div>
-                <span class="node-label">Domain</span>
-                <span class="node-tag">Network</span>
-            </a>
-            <a href="network.html" class="board-node" style="top: 72%; left: 55%;">
-                <div class="node-dot"></div>
-                <div class="node-icon"><i class="fas fa-network-wired"></i></div>
-                <span class="node-label">DNS</span>
-                <span class="node-tag">Network</span>
-            </a>
-            <a href="leaks.html" class="board-node" style="top: 72%; left: 80%;">
-                <div class="node-dot"></div>
-                <div class="node-icon"><i class="fas fa-database"></i></div>
-                <span class="node-label">Leak Search</span>
-                <span class="node-tag">Breach</span>
-            </a>
-        </div>
-    </section>
 
     <!-- Trusted By Section -->
     <section class="trusted-section">
