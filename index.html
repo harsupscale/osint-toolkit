@@ -14,25 +14,21 @@
 <body>
 
     <div class="particles" id="particles"></div>
+    <div class="iso-shapes" id="isoShapes"></div>
 
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-brand">
+            <a href="index.html" class="nav-brand">
                 <div class="nav-logo">
                     <i class="fas fa-crosshairs"></i>
                 </div>
                 <span>OSINT<span class="accent">Toolkit</span></span>
-            </div>
+            </a>
             <div class="nav-links">
-                <a href="#ip-lookup">IP Lookup</a>
-                <a href="#email-lookup">Email</a>
-                <a href="#email-platforms">Platforms</a>
-                <a href="#username-search">Username</a>
-                <a href="#domain-lookup">Domain</a>
-                <a href="#dns-lookup">DNS</a>
-                <a href="#osint-leak-search">Leaks</a>
-                <a href="#phone-lookup">Phone</a>
+                <a href="network.html">Network</a>
+                <a href="identity.html">Identity</a>
+                <a href="leaks.html">Leaks</a>
             </div>
             <div class="nav-actions">
                 <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
@@ -47,14 +43,9 @@
 
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
-        <a href="#ip-lookup"><i class="fas fa-globe"></i> IP Lookup</a>
-        <a href="#email-lookup"><i class="fas fa-envelope"></i> Email Lookup</a>
-        <a href="#email-platforms"><i class="fas fa-user-check"></i> Email Platforms</a>
-        <a href="#username-search"><i class="fas fa-at"></i> Username Search</a>
-        <a href="#domain-lookup"><i class="fas fa-server"></i> Domain Lookup</a>
-        <a href="#dns-lookup"><i class="fas fa-network-wired"></i> DNS Lookup</a>
-        <a href="#osint-leak-search"><i class="fas fa-database"></i> OSINT Leak Search</a>
-        <a href="#phone-lookup"><i class="fas fa-phone"></i> Phone Lookup</a>
+        <a href="network.html"><i class="fas fa-network-wired"></i> Network Tools</a>
+        <a href="identity.html"><i class="fas fa-user-secret"></i> Identity Tools</a>
+        <a href="leaks.html"><i class="fas fa-database"></i> Leak Search</a>
     </div>
 
     <!-- Hero Section -->
@@ -74,272 +65,416 @@
                 footprints, and investigate threats.</p>
             <div class="hero-stats">
                 <div class="stat">
-                    <i class="fas fa-tools"></i>
+                    <i class="fas fa-database"></i>
                     <div>
-                        <span class="stat-num">8</span>
-                        <span class="stat-label">Tools</span>
+                        <span class="stat-num">17+</span>
+                        <span class="stat-label">Databases</span>
                     </div>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat">
                     <i class="fas fa-bolt"></i>
                     <div>
-                        <span class="stat-num">100%</span>
-                        <span class="stat-label">Free</span>
+                        <span class="stat-num">Real-time</span>
+                        <span class="stat-label">Intelligence</span>
                     </div>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat">
                     <i class="fas fa-user-shield"></i>
                     <div>
-                        <span class="stat-num">0</span>
-                        <span class="stat-label">Logs</span>
+                        <span class="stat-num">Zero</span>
+                        <span class="stat-label">Tracking</span>
                     </div>
                 </div>
             </div>
             <div class="hero-cta">
-                <a href="#ip-lookup" class="btn-primary">
+                <a href="#tool-grid" class="btn-primary">
                     <i class="fas fa-play"></i> Start Investigating
                 </a>
                 <a href="https://github.com" target="_blank" class="btn-secondary">
                     <i class="fab fa-github"></i> Source Code
                 </a>
             </div>
+            <div class="hero-search">
+                <div class="hero-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="heroSearch" placeholder="Search by email, phone, username, IP or domain...">
+                    <button onclick="heroSearchAction()"><i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="hero-search-tags">
+                    <span>Quick:</span>
+                    <a href="identity.html">Email</a>
+                    <a href="network.html">IP</a>
+                    <a href="identity.html">Phone</a>
+                    <a href="leaks.html">Breach</a>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- Tool Grid -->
-    <section class="tool-grid-section">
+    <!-- Investigation Board -->
+    <section class="investigation-board" id="tool-grid">
         <div class="section-header">
-            <h2>Investigation <span class="accent">Tools</span></h2>
-            <p>Select a tool to begin your investigation</p>
+            <h2>Investigation <span class="accent">Board</span></h2>
+            <p>Select a node to begin your investigation</p>
         </div>
-        <div class="tool-grid">
-            <a href="#ip-lookup" class="tool-grid-item">
-                <div class="tool-icon"><i class="fas fa-globe"></i></div>
-                <span class="tool-name">IP Lookup</span>
-                <span class="tool-desc-mini">Trace & geolocate</span>
+        <div class="board-container">
+            <!-- SVG Connection Lines -->
+            <svg class="board-lines" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#00b4ff;stop-opacity:0.1" />
+                        <stop offset="50%" style="stop-color:#00b4ff;stop-opacity:0.4" />
+                        <stop offset="100%" style="stop-color:#00b4ff;stop-opacity:0.1" />
+                    </linearGradient>
+                </defs>
+                <!-- Center to top row -->
+                <line x1="500" y1="250" x2="150" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
+                <line x1="500" y1="250" x2="380" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
+                <line x1="500" y1="250" x2="620" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
+                <line x1="500" y1="250" x2="850" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
+                <!-- Center to bottom row -->
+                <line x1="500" y1="250" x2="150" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
+                <line x1="500" y1="250" x2="380" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
+                <line x1="500" y1="250" x2="620" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
+                <line x1="500" y1="250" x2="850" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="6,4"/>
+                <!-- Horizontal connections top -->
+                <line x1="150" y1="100" x2="380" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
+                <line x1="380" y1="100" x2="620" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
+                <line x1="620" y1="100" x2="850" y2="100" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
+                <!-- Horizontal connections bottom -->
+                <line x1="150" y1="400" x2="380" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
+                <line x1="380" y1="400" x2="620" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
+                <line x1="620" y1="400" x2="850" y2="400" stroke="url(#lineGrad)" stroke-width="1" stroke-dasharray="4,6"/>
+            </svg>
+
+            <!-- Center Hub -->
+            <a href="leaks.html" class="board-node board-center">
+                <div class="node-pulse"></div>
+                <div class="node-icon"><i class="fas fa-crosshairs"></i></div>
+                <span class="node-label">OSINT<br>Hub</span>
             </a>
-            <a href="#phone-lookup" class="tool-grid-item">
-                <div class="tool-icon"><i class="fas fa-phone"></i></div>
-                <span class="tool-name">Phone</span>
-                <span class="tool-desc-mini">Number investigation</span>
+
+            <!-- Top Row -->
+            <a href="network.html" class="board-node" style="top: 5%; left: 5%;">
+                <div class="node-dot"></div>
+                <div class="node-icon"><i class="fas fa-globe"></i></div>
+                <span class="node-label">IP Lookup</span>
+                <span class="node-tag">Network</span>
             </a>
-            <a href="#email-lookup" class="tool-grid-item">
-                <div class="tool-icon"><i class="fas fa-envelope"></i></div>
-                <span class="tool-name">Email Lookup</span>
-                <span class="tool-desc-mini">Validate & investigate</span>
+            <a href="identity.html" class="board-node" style="top: 5%; left: 30%;">
+                <div class="node-dot"></div>
+                <div class="node-icon"><i class="fas fa-phone"></i></div>
+                <span class="node-label">Phone Lookup</span>
+                <span class="node-tag">Identity</span>
             </a>
-            <a href="#email-platforms" class="tool-grid-item">
-                <div class="tool-icon"><i class="fas fa-user-check"></i></div>
-                <span class="tool-name">Email Platforms</span>
-                <span class="tool-desc-mini">Find social profiles</span>
+            <a href="identity.html" class="board-node" style="top: 5%; left: 55%;">
+                <div class="node-dot"></div>
+                <div class="node-icon"><i class="fas fa-envelope"></i></div>
+                <span class="node-label">Email Lookup</span>
+                <span class="node-tag">Identity</span>
             </a>
-            <a href="#username-search" class="tool-grid-item">
-                <div class="tool-icon"><i class="fas fa-at"></i></div>
-                <span class="tool-name">Username</span>
-                <span class="tool-desc-mini">Multi-platform search</span>
+            <a href="identity.html" class="board-node" style="top: 5%; left: 80%;">
+                <div class="node-dot"></div>
+                <div class="node-icon"><i class="fas fa-user-check"></i></div>
+                <span class="node-label">Email Platforms</span>
+                <span class="node-tag">Identity</span>
             </a>
-            <a href="#domain-lookup" class="tool-grid-item">
-                <div class="tool-icon"><i class="fas fa-server"></i></div>
-                <span class="tool-name">Domain</span>
-                <span class="tool-desc-mini">WHOIS & intel</span>
+
+            <!-- Bottom Row -->
+            <a href="identity.html" class="board-node" style="top: 72%; left: 5%;">
+                <div class="node-dot"></div>
+                <div class="node-icon"><i class="fas fa-at"></i></div>
+                <span class="node-label">Username</span>
+                <span class="node-tag">Identity</span>
             </a>
-            <a href="#dns-lookup" class="tool-grid-item">
-                <div class="tool-icon"><i class="fas fa-network-wired"></i></div>
-                <span class="tool-name">DNS</span>
-                <span class="tool-desc-mini">Records lookup</span>
+            <a href="network.html" class="board-node" style="top: 72%; left: 30%;">
+                <div class="node-dot"></div>
+                <div class="node-icon"><i class="fas fa-server"></i></div>
+                <span class="node-label">Domain</span>
+                <span class="node-tag">Network</span>
             </a>
-            <a href="#osint-leak-search" class="tool-grid-item">
-                <div class="tool-icon"><i class="fas fa-database"></i></div>
-                <span class="tool-name">Leak Search</span>
-                <span class="tool-desc-mini">Breach data scan</span>
+            <a href="network.html" class="board-node" style="top: 72%; left: 55%;">
+                <div class="node-dot"></div>
+                <div class="node-icon"><i class="fas fa-network-wired"></i></div>
+                <span class="node-label">DNS</span>
+                <span class="node-tag">Network</span>
+            </a>
+            <a href="leaks.html" class="board-node" style="top: 72%; left: 80%;">
+                <div class="node-dot"></div>
+                <div class="node-icon"><i class="fas fa-database"></i></div>
+                <span class="node-label">Leak Search</span>
+                <span class="node-tag">Breach</span>
             </a>
         </div>
     </section>
 
-    <!-- Tools Container -->
-    <main class="container">
+    <!-- Trusted By Section -->
+    <section class="trusted-section">
+        <p class="trusted-label">Trusted by cybersecurity professionals & pentesters worldwide</p>
+        <div class="trusted-logos">
+            <div class="trusted-logo"><i class="fas fa-shield-halved"></i> <span>Pentesters</span></div>
+            <div class="trusted-logo"><i class="fas fa-bug"></i> <span>Bug Hunters</span></div>
+            <div class="trusted-logo"><i class="fas fa-user-secret"></i> <span>Researchers</span></div>
+            <div class="trusted-logo"><i class="fas fa-building"></i> <span>SOC Teams</span></div>
+            <div class="trusted-logo"><i class="fas fa-gavel"></i> <span>Law Enforcement</span></div>
+            <div class="trusted-logo"><i class="fas fa-graduation-cap"></i> <span>Students</span></div>
+        </div>
+    </section>
 
-        <!-- IP Lookup -->
-        <section class="tool-card" id="ip-lookup">
-            <div class="tool-card-header">
-                <div class="tool-card-icon"><i class="fas fa-globe"></i></div>
-                <div class="tool-card-title">
-                    <h2>IP Address Lookup</h2>
-                    <p>Geolocation, ISP, coordinates, proxy detection & more</p>
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="section-header">
+            <h2>Why <span class="accent">OSINT Toolkit</span>?</h2>
+            <p>Built for speed, privacy & accuracy</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                <h3>Lightning Fast</h3>
+                <p>Results in seconds. No signups, no waiting. Direct API integrations for instant intelligence.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                <h3>Zero Logging</h3>
+                <p>Your searches are never stored. No accounts, no tracking. Stay completely anonymous.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-database"></i></div>
+                <h3>Breach Database</h3>
+                <p>Search across 17+ leaked databases. Find compromised emails, passwords & phone numbers.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-globe"></i></div>
+                <h3>Multi-Source</h3>
+                <p>IP geolocation, WHOIS, DNS records, social profiles - all tools in one place.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+                <h3>Responsive Design</h3>
+                <p>Works on desktop, tablet & mobile. Investigate from anywhere, anytime.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-code"></i></div>
+                <h3>Open Source</h3>
+                <p>100% free & open source. No hidden fees, no premium tiers. Everything unlocked.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-section">
+        <div class="section-header">
+            <h2>How It <span class="accent">Works</span></h2>
+            <p>3 steps to start your investigation</p>
+        </div>
+        <div class="how-grid">
+            <div class="how-step">
+                <div class="how-num">01</div>
+                <h3>Choose a Tool</h3>
+                <p>Select from IP lookup, email search, breach database, username finder & more</p>
+            </div>
+            <div class="how-connector"><i class="fas fa-arrow-right"></i></div>
+            <div class="how-step">
+                <div class="how-num">02</div>
+                <h3>Enter Target</h3>
+                <p>Input an email, IP, phone number, domain or username to investigate</p>
+            </div>
+            <div class="how-connector"><i class="fas fa-arrow-right"></i></div>
+            <div class="how-step">
+                <div class="how-num">03</div>
+                <h3>Get Results</h3>
+                <p>View geolocation, breach data, social profiles & infrastructure intel instantly</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Selectors Section -->
+    <section class="selectors-section">
+        <div class="section-header">
+            <h2>17+ <span class="accent">Search Selectors</span></h2>
+            <p>Search by any data field - from email to IP to phone number</p>
+        </div>
+        <div class="selectors-grid">
+            <div class="selector-pill"><i class="fas fa-envelope"></i> Email</div>
+            <div class="selector-pill"><i class="fas fa-phone"></i> Phone</div>
+            <div class="selector-pill"><i class="fas fa-user"></i> Username</div>
+            <div class="selector-pill"><i class="fas fa-globe"></i> IP Address</div>
+            <div class="selector-pill"><i class="fas fa-link"></i> Domain</div>
+            <div class="selector-pill"><i class="fas fa-key"></i> Password</div>
+            <div class="selector-pill"><i class="fas fa-id-card"></i> Full Name</div>
+            <div class="selector-pill"><i class="fas fa-map-marker-alt"></i> Address</div>
+            <div class="selector-pill"><i class="fas fa-fingerprint"></i> Hash</div>
+            <div class="selector-pill"><i class="fas fa-credit-card"></i> Card Number</div>
+            <div class="selector-pill"><i class="fas fa-passport"></i> Passport</div>
+            <div class="selector-pill"><i class="fas fa-id-badge"></i> Aadhaar</div>
+            <div class="selector-pill"><i class="fas fa-car"></i> Vehicle</div>
+            <div class="selector-pill"><i class="fas fa-building"></i> Company</div>
+            <div class="selector-pill"><i class="fas fa-hashtag"></i> Crypto Wallet</div>
+            <div class="selector-pill"><i class="fas fa-database"></i> Database</div>
+            <div class="selector-pill"><i class="fas fa-file-alt"></i> Pastebin</div>
+        </div>
+    </section>
+
+    <!-- Latest Breaches Section -->
+    <section class="breaches-section">
+        <div class="section-header">
+            <h2>Recent <span class="accent">Breaches</span></h2>
+            <p>Notable data breaches detected in 2025-2026</p>
+        </div>
+        <div class="breaches-grid">
+            <div class="breach-card">
+                <div class="breach-header">
+                    <span class="breach-severity critical">Critical</span>
+                    <span class="breach-date">Jan 2026</span>
+                </div>
+                <h3>Turkish Data Broker</h3>
+                <p>56M records exposed including national IDs, addresses & phone numbers of Turkish citizens</p>
+                <div class="breach-stats">
+                    <span><i class="fas fa-database"></i> 56M records</span>
+                    <span><i class="fas fa-exclamation-triangle"></i> PII</span>
                 </div>
             </div>
-            <div class="tool-card-body">
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <i class="fas fa-search input-icon"></i>
-                        <input type="text" id="ipInput" placeholder="Enter IP address (e.g. 8.8.8.8)">
+            <div class="breach-card">
+                <div class="breach-header">
+                    <span class="breach-severity high">High</span>
+                    <span class="breach-date">Dec 2025</span>
+                </div>
+                <h3>VPN Provider Leak</h3>
+                <p>6.2M user accounts with credentials & payment logs from a major VPN service</p>
+                <div class="breach-stats">
+                    <span><i class="fas fa-database"></i> 6.2M records</span>
+                    <span><i class="fas fa-key"></i> Credentials</span>
+                </div>
+            </div>
+            <div class="breach-card">
+                <div class="breach-header">
+                    <span class="breach-severity high">High</span>
+                    <span class="breach-date">Nov 2025</span>
+                </div>
+                <h3>Gaming Platform</h3>
+                <p>12M gaming accounts with emails, hashed passwords & purchase history leaked</p>
+                <div class="breach-stats">
+                    <span><i class="fas fa-database"></i> 12M records</span>
+                    <span><i class="fas fa-gamepad"></i> Gaming</span>
+                </div>
+            </div>
+            <div class="breach-card">
+                <div class="breach-header">
+                    <span class="breach-severity medium">Medium</span>
+                    <span class="breach-date">Oct 2025</span>
+                </div>
+                <h3>E-Commerce Platform</h3>
+                <p>3.8M customer records including shipping addresses & partial payment data</p>
+                <div class="breach-stats">
+                    <span><i class="fas fa-database"></i> 3.8M records</span>
+                    <span><i class="fas fa-shopping-cart"></i> E-Commerce</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- OSINT Articles Section with Images -->
+    <section class="blog-section">
+        <div class="section-header">
+            <h2>OSINT <span class="accent">Blog</span></h2>
+            <p>Guides, techniques & tools for investigations</p>
+        </div>
+        <div class="blog-grid">
+            <a href="https://osintframework.com" target="_blank" class="blog-card blog-card-large">
+                <div class="blog-img" style="background: url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80') center/cover;">
+                    <div class="blog-img-overlay"></div>
+                    <div class="blog-img-icon"><i class="fas fa-sitemap"></i></div>
+                    <span class="blog-category">Essential Tool</span>
+                </div>
+                <div class="blog-body">
+                    <div class="blog-meta">
+                        <span><i class="fas fa-clock"></i> Updated Weekly</span>
+                        <span><i class="fas fa-star"></i> Must-Have</span>
                     </div>
-                    <button onclick="lookupIP()"><i class="fas fa-arrow-right"></i> Lookup</button>
+                    <h3>OSINT Framework</h3>
+                    <p>The ultimate collection of 500+ OSINT tools organized by category. Email, username, IP, domain, crypto, phone - every investigation type covered.</p>
+                    <span class="blog-read">Explore Framework <i class="fas fa-arrow-right"></i></span>
                 </div>
-                <div class="result-box" id="ipResult"></div>
-            </div>
-        </section>
-
-        <!-- Phone Number Lookup -->
-        <section class="tool-card" id="phone-lookup">
-            <div class="tool-card-header">
-                <div class="tool-card-icon"><i class="fas fa-phone"></i></div>
-                <div class="tool-card-title">
-                    <h2>Phone Number Lookup</h2>
-                    <p>Search phone number leaks from breached databases</p>
+            </a>
+            <a href="https://github.com/soxoj/maigret" target="_blank" class="blog-card">
+                <div class="blog-img" style="background: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&q=80') center/cover;">
+                    <div class="blog-img-overlay"></div>
+                    <div class="blog-img-icon"><i class="fas fa-user-secret"></i></div>
+                    <span class="blog-category">Username OSINT</span>
                 </div>
-            </div>
-            <div class="tool-card-body">
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <i class="fas fa-mobile-screen input-icon"></i>
-                        <input type="tel" id="phoneInput"
-                            placeholder="Enter phone with country code (e.g. +919876543210)">
+                <div class="blog-body">
+                    <div class="blog-meta">
+                        <span><i class="fas fa-clock"></i> 5 min read</span>
                     </div>
-                    <button onclick="lookupPhone()"><i class="fas fa-arrow-right"></i> Lookup</button>
+                    <h3>Maigret - Username Hunter</h3>
+                    <p>Check 3000+ sites for a username. Generates HTML reports with account details & profile links.</p>
+                    <span class="blog-read">View on GitHub <i class="fas fa-arrow-right"></i></span>
                 </div>
-                <div class="result-box" id="phoneResult"></div>
-            </div>
-        </section>
-
-        <!-- Email Lookup -->
-        <section class="tool-card" id="email-lookup">
-            <div class="tool-card-header">
-                <div class="tool-card-icon"><i class="fas fa-envelope"></i></div>
-                <div class="tool-card-title">
-                    <h2>Email Lookup</h2>
-                    <p>Validate email, check domain info & Gravatar profile</p>
+            </a>
+            <a href="https://phoneinfoga.vercel.app" target="_blank" class="blog-card">
+                <div class="blog-img" style="background: url('https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80') center/cover;">
+                    <div class="blog-img-overlay"></div>
+                    <div class="blog-img-icon"><i class="fas fa-phone-alt"></i></div>
+                    <span class="blog-category">Phone Intel</span>
                 </div>
-            </div>
-            <div class="tool-card-body">
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <i class="fas fa-at input-icon"></i>
-                        <input type="email" id="emailInput" placeholder="Enter email address">
+                <div class="blog-body">
+                    <div class="blog-meta">
+                        <span><i class="fas fa-clock"></i> 3 min read</span>
                     </div>
-                    <button onclick="lookupEmail()"><i class="fas fa-arrow-right"></i> Lookup</button>
+                    <h3>PhoneInfoga</h3>
+                    <p>Advanced phone investigation. Validate numbers, find carrier info, location & linked accounts.</p>
+                    <span class="blog-read">Try PhoneInfoga <i class="fas fa-arrow-right"></i></span>
                 </div>
-                <div class="result-box" id="emailResult"></div>
-            </div>
-        </section>
-
-        <!-- Email Platform Checker -->
-        <section class="tool-card" id="email-platforms">
-            <div class="tool-card-header">
-                <div class="tool-card-icon"><i class="fas fa-user-check"></i></div>
-                <div class="tool-card-title">
-                    <h2>Email Platform Checker</h2>
-                    <p>Get profile photo, Google activity & social platforms from a Gmail</p>
+            </a>
+            <a href="https://www.shodan.io" target="_blank" class="blog-card">
+                <div class="blog-img" style="background: url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=80') center/cover;">
+                    <div class="blog-img-overlay"></div>
+                    <div class="blog-img-icon"><i class="fas fa-server"></i></div>
+                    <span class="blog-category">Infrastructure</span>
                 </div>
-            </div>
-            <div class="tool-card-body">
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <i class="fas fa-search input-icon"></i>
-                        <input type="email" id="emailPlatformInput" placeholder="Enter email address (e.g. someone@gmail.com)">
+                <div class="blog-body">
+                    <div class="blog-meta">
+                        <span><i class="fas fa-clock"></i> 4 min read</span>
                     </div>
-                    <button onclick="checkEmailPlatforms()"><i class="fas fa-arrow-right"></i> Check</button>
+                    <h3>Shodan - IoT Search</h3>
+                    <p>Search engine for exposed devices. Find cameras, SCADA systems, databases & open ports worldwide.</p>
+                    <span class="blog-read">Explore Shodan <i class="fas fa-arrow-right"></i></span>
                 </div>
-                <div class="result-box" id="emailPlatformResult"></div>
-            </div>
-        </section>
-
-        <!-- Username Search -->
-        <section class="tool-card" id="username-search">
-            <div class="tool-card-header">
-                <div class="tool-card-icon"><i class="fas fa-at"></i></div>
-                <div class="tool-card-title">
-                    <h2>Username Search</h2>
-                    <p>Check if a username exists across 30+ platforms</p>
+            </a>
+            <a href="https://crt.sh" target="_blank" class="blog-card">
+                <div class="blog-img" style="background: url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80') center/cover;">
+                    <div class="blog-img-overlay"></div>
+                    <div class="blog-img-icon"><i class="fas fa-certificate"></i></div>
+                    <span class="blog-category">Certificates</span>
                 </div>
-            </div>
-            <div class="tool-card-body">
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <i class="fas fa-user input-icon"></i>
-                        <input type="text" id="usernameInput" placeholder="Enter username">
+                <div class="blog-body">
+                    <div class="blog-meta">
+                        <span><i class="fas fa-clock"></i> 2 min read</span>
                     </div>
-                    <button onclick="searchUsername()"><i class="fas fa-arrow-right"></i> Search</button>
+                    <h3>crt.sh - CT Logs</h3>
+                    <p>Certificate Transparency log search. Discover hidden subdomains & infrastructure of any domain.</p>
+                    <span class="blog-read">Search Certificates <i class="fas fa-arrow-right"></i></span>
                 </div>
-                <div class="result-box" id="usernameResult"></div>
-            </div>
-        </section>
-
-        <!-- Domain Lookup -->
-        <section class="tool-card" id="domain-lookup">
-            <div class="tool-card-header">
-                <div class="tool-card-icon"><i class="fas fa-server"></i></div>
-                <div class="tool-card-title">
-                    <h2>Domain / WHOIS Lookup</h2>
-                    <p>WHOIS data, registrar info, certificates & more</p>
+            </a>
+            <a href="https://intelx.io" target="_blank" class="blog-card">
+                <div class="blog-img" style="background: url('https://images.unsplash.com/photo-1563986768609-322da13575f2?w=600&q=80') center/cover;">
+                    <div class="blog-img-overlay"></div>
+                    <div class="blog-img-icon"><i class="fas fa-search"></i></div>
+                    <span class="blog-category">Threat Intel</span>
                 </div>
-            </div>
-            <div class="tool-card-body">
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <i class="fas fa-link input-icon"></i>
-                        <input type="text" id="domainInput" placeholder="Enter domain (e.g. example.com)">
+                <div class="blog-body">
+                    <div class="blog-meta">
+                        <span><i class="fas fa-clock"></i> 6 min read</span>
                     </div>
-                    <button onclick="lookupDomain()"><i class="fas fa-arrow-right"></i> Lookup</button>
+                    <h3>IntelX Intelligence</h3>
+                    <p>Search engines, archives, leaks & darknet. Premium threat intelligence platform for serious investigators.</p>
+                    <span class="blog-read">Visit IntelX <i class="fas fa-arrow-right"></i></span>
                 </div>
-                <div class="result-box" id="domainResult"></div>
-            </div>
-        </section>
-
-        <!-- DNS Lookup -->
-        <section class="tool-card" id="dns-lookup">
-            <div class="tool-card-header">
-                <div class="tool-card-icon"><i class="fas fa-network-wired"></i></div>
-                <div class="tool-card-title">
-                    <h2>DNS Lookup</h2>
-                    <p>Query DNS records: A, AAAA, MX, NS, TXT, CNAME, SOA</p>
-                </div>
-            </div>
-            <div class="tool-card-body">
-                <div class="input-group has-select">
-                    <div class="input-wrapper">
-                        <i class="fas fa-server input-icon"></i>
-                        <input type="text" id="dnsInput" placeholder="Enter domain name">
-                    </div>
-                    <select id="dnsType">
-                        <option value="A">A</option>
-                        <option value="AAAA">AAAA</option>
-                        <option value="MX">MX</option>
-                        <option value="NS">NS</option>
-                        <option value="TXT">TXT</option>
-                        <option value="CNAME">CNAME</option>
-                        <option value="SOA">SOA</option>
-                    </select>
-                    <button onclick="lookupDNS()"><i class="fas fa-arrow-right"></i> Query</button>
-                </div>
-                <div class="result-box" id="dnsResult"></div>
-            </div>
-        </section>
-
-        <!-- OSINT Leak Search -->
-        <section class="tool-card" id="osint-leak-search">
-            <div class="tool-card-header">
-                <div class="tool-card-icon"><i class="fas fa-database"></i></div>
-                <div class="tool-card-title">
-                    <h2>OSINT Leak Search</h2>
-                    <p>Search leaked databases for emails, phones, usernames & more</p>
-                </div>
-            </div>
-            <div class="tool-card-body">
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <i class="fas fa-search input-icon"></i>
-                        <input type="text" id="leakInput" placeholder="Enter phone, email, username, or any query">
-                    </div>
-                    <button onclick="searchLeaks()"><i class="fas fa-arrow-right"></i> Search</button>
-                </div>
-                <div class="result-box" id="leakResult"></div>
-            </div>
-        </section>
-
-    </main>
+            </a>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer class="footer">
@@ -354,17 +489,16 @@
                         footprints, and investigate threats.</p>
                 </div>
                 <div class="footer-links-group">
-                    <h4>Tools</h4>
-                    <a href="#ip-lookup">IP Lookup</a>
-                    <a href="#email-lookup">Email Lookup</a>
-                    <a href="#email-platforms">Email Platforms</a>
-                    <a href="#username-search">Username Search</a>
+                    <h4>Network</h4>
+                    <a href="network.html">IP Lookup</a>
+                    <a href="network.html">Domain Lookup</a>
+                    <a href="network.html">DNS Lookup</a>
                 </div>
                 <div class="footer-links-group">
-                    <h4>Resources</h4>
-                    <a href="#dns-lookup">DNS Lookup</a>
-                    <a href="#osint-leak-search">Leak Search</a>
-                    <a href="#phone-lookup">Phone Lookup</a>
+                    <h4>Identity</h4>
+                    <a href="identity.html">Email Lookup</a>
+                    <a href="identity.html">Phone Lookup</a>
+                    <a href="identity.html">Username Search</a>
                 </div>
                 <div class="footer-links-group">
                     <h4>External</h4>

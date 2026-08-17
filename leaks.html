@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leak Search - OSINT Toolkit</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="particles" id="particles"></div>
+    <div class="iso-shapes" id="isoShapes"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <div class="nav-logo">
+                    <i class="fas fa-crosshairs"></i>
+                </div>
+                <span>OSINT<span class="accent">Toolkit</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="network.html">Network</a>
+                <a href="identity.html">Identity</a>
+                <a href="leaks.html" class="active">Leaks</a>
+            </div>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="hamburger" id="hamburger">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="network.html"><i class="fas fa-network-wired"></i> Network Tools</a>
+        <a href="identity.html"><i class="fas fa-user-secret"></i> Identity Tools</a>
+        <a href="leaks.html"><i class="fas fa-database"></i> Leak Search</a>
+    </div>
+
+    <!-- Page Content -->
+    <main class="tool-page">
+        <div class="tool-page-header">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Leak Search</span>
+            </div>
+            <h1 class="page-title">OSINT <span class="accent">Leak Search</span></h1>
+            <p class="page-subtitle">Search leaked databases for emails, phones, usernames & more</p>
+        </div>
+
+        <div class="tool-page-content">
+            <!-- OSINT Leak Search -->
+            <section class="iso-tool-card" id="osint-leak-search">
+                <div class="iso-tool-card-inner">
+                    <div class="iso-tool-header">
+                        <div class="iso-tool-icon"><i class="fas fa-database"></i></div>
+                        <div class="iso-tool-title">
+                            <h2>OSINT Leak Search</h2>
+                            <p>Search leaked databases for emails, phones, usernames & more</p>
+                        </div>
+                    </div>
+                    <div class="iso-tool-body">
+                        <div class="glass-input-group">
+                            <div class="glass-input-wrapper">
+                                <i class="fas fa-search glass-input-icon"></i>
+                                <input type="text" id="leakInput" class="glass-input" placeholder="Enter phone, email, username, or any query">
+                            </div>
+                            <button class="glass-btn" onclick="searchLeaks()"><i class="fas fa-arrow-right"></i> Search</button>
+                        </div>
+                        <div class="result-box" id="leakResult"></div>
+                    </div>
+                </div>
+                <div class="iso-tool-card-side"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-bottom">
+                <p class="footer-disclaimer">For educational & authorized pentesting only.</p>
+                <p class="footer-copy">&copy; 2026 Harsh — stay ghosted, stay dangerous.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button id="scrollToTop"><i class="fas fa-arrow-up"></i></button>
+
+    <script src="script.js"></script>
+    <script>
+        // ===== OSINT LEAK SEARCH =====
+        async function searchLeaks() {
+            const query = document.getElementById('leakInput').value.trim();
+            if (!query) return showToast('Enter a search query');
+            const btn = document.querySelector('#osint-leak-search .glass-btn');
+            setButtonLoading(btn, true);
+            showLoading('leakResult');
+
+            try {
+                const res = await fetch('/api/leak-search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, limit: 100 })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || data.error) {
+                    let errMsg = data.error || 'Search failed';
+                    if (errMsg.includes('too many requests') || errMsg.includes('invalid data') || errMsg.includes('requests again in')) {
+                        errMsg = 'Slow down! Rate limit hit. Try again in a few seconds.';
+                    }
+                    throw new Error(errMsg);
+                }
+
+                if (!data.NumOfDatabase || data.NumOfDatabase === 'N/A') {
+                    throw new Error('API token expired. Update LEAK_API_TOKEN in .env');
+                }
+
+                let html = '<table>';
+                html += `<tr><th>Query</th><td>${query}</td></tr>`;
+                html += `<tr><th>Results Found</th><td><span class="tag tag-info">${data.NumOfResults || 0}</span></td></tr>`;
+                html += `<tr><th>Databases Searched</th><td>${data.NumOfDatabase || 'N/A'}</td></tr>`;
+                html += `<tr><th>Free Requests Left</th><td>${data.free_requests_left || 'N/A'}</td></tr>`;
+                html += `<tr><th>Search Time</th><td>${data['search time'] || 'N/A'}s</td></tr>`;
+
+                if (data.List && typeof data.List === 'object') {
+                    let resultCount = 0;
+
+                    Object.entries(data.List).forEach(([dbName, dbData]) => {
+                        if (dbName === 'No results found') {
+                            if (dbData.InfoLeak) {
+                                html += `<tr><td colspan="2" style="color:var(--text-muted);font-style:italic;padding-top:1rem">${dbData.InfoLeak}</td></tr>`;
+                            }
+                            return;
+                        }
+
+                        html += `<tr><td colspan="2" style="background:var(--bg-card);border-bottom:2px solid var(--accent);padding-top:1rem">
+                            <strong style="color:var(--accent)"><i class="fas fa-database"></i> ${dbName}</strong>
+                            <span class="tag tag-info" style="margin-left:0.5rem">${dbData.NumOfResults || 0} records</span>
+                        </td></tr>`;
+
+                        if (dbData.Data && Array.isArray(dbData.Data)) {
+                            dbData.Data.forEach((record) => {
+                                if (typeof record === 'object' && record !== null) {
+                                    resultCount++;
+                                    const keys = Object.keys(record);
+                                    if (keys.length > 0 && !(keys.length === 1 && keys[0] === 'No results found')) {
+                                        html += `<tr><td colspan="2" style="border-bottom:1px solid var(--border);padding-top:0.5rem">
+                                            <strong style="color:var(--info)">Record ${resultCount}</strong>
+                                        </td></tr>`;
+                                        Object.entries(record).forEach(([key, value]) => {
+                                            if (value !== null && value !== undefined && value !== '') {
+                                                let displayVal = typeof value === 'object' ? JSON.stringify(value, null, 2) : value;
+                                                let rowStyle = '';
+                                                if (key.toLowerCase().includes('address') || key.toLowerCase().includes('адрес')) rowStyle = 'style="background:rgba(255,165,2,0.03)"';
+                                                if (key.toLowerCase().includes('aadhaar') || key.toLowerCase().includes('passport') || key.toLowerCase().includes('id')) rowStyle = 'style="background:rgba(255,71,87,0.03)"';
+                                                html += `<tr ${rowStyle}><th>${key}</th><td>${displayVal}</td></tr>`;
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+
+                        if (dbData.InfoLeak && dbData.NumOfResults === 0) {
+                            html += `<tr><td colspan="2" style="color:var(--text-muted);font-style:italic">${dbData.InfoLeak}</td></tr>`;
+                        }
+                    });
+
+                    if (resultCount === 0 && data.NumOfResults === 0) {
+                        html += `<tr><td colspan="2" style="color:var(--success);padding-top:1rem"><i class="fas fa-check-circle"></i> No results found for this query.</td></tr>`;
+                    }
+                }
+
+                html += '</table>';
+                showResult('leakResult', html);
+                document.getElementById('leakInput').value = '';
+            } catch (e) {
+                showResult('leakResult', `<div class="error"><i class="fas fa-exclamation-triangle"></i> ${e.message}</div>`);
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        }
+    </script>
+</body>
+
+</html>
