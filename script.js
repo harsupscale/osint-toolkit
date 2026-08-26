@@ -143,9 +143,11 @@ async function heroSearchAction() {
                     if (record.name) rows += `<tr><th>Name</th><td>${record.name}</td></tr>`;
                     if (record.fname) rows += `<tr><th>Father Name</th><td>${record.fname}</td></tr>`;
                     if (record.mobile) rows += `<tr><th>Mobile</th><td>${record.mobile}</td></tr>`;
+                    if (record.alt) rows += `<tr><th>Alt Number</th><td>${record.alt}</td></tr>`;
                     if (record.email) rows += `<tr><th>Email</th><td>${record.email}</td></tr>`;
                     if (record.circle) rows += `<tr><th>Circle</th><td>${record.circle}</td></tr>`;
                     if (record.address) rows += `<tr><th>Address</th><td>${record.address.replace(/!/g, ' ')}</td></tr>`;
+                    if (record.id) rows += `<tr><th>Aadhaar ID</th><td>${record.id}</td></tr>`;
                 });
             }
             resultBox.innerHTML = `
