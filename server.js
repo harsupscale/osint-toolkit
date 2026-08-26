@@ -171,6 +171,24 @@ app.get('/api/phone-info/:phone', async (req, res) => {
     }
 });
 
+// Vehicle Info Lookup
+app.get('/api/vehicle-info/:regNo', async (req, res) => {
+    const regNo = req.params.regNo.toUpperCase().replace(/\s+/g, '').trim();
+    if (!regNo || regNo.length < 4) {
+        return res.status(400).json({ error: 'Enter a valid vehicle number (e.g. MH12DE1234)' });
+    }
+    try {
+        const response = await fetch(`https://vehicleinfo-byrack.vercel.app/api?search=${encodeURIComponent(regNo)}`);
+        const data = await response.json();
+        if (!data.response || !data.response.rtoData) {
+            return res.status(404).json({ error: 'Vehicle not found' });
+        }
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: `Vehicle lookup failed: ${err.message}` });
+    }
+});
+
 // SPA fallback
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));

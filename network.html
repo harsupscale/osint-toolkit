@@ -143,6 +143,30 @@
                 </div>
                 <div class="iso-tool-card-side"></div>
             </section>
+
+            <!-- Vehicle Lookup -->
+            <section class="iso-tool-card" id="vehicle-lookup">
+                <div class="iso-tool-card-inner">
+                    <div class="iso-tool-header">
+                        <div class="iso-tool-icon"><i class="fas fa-car"></i></div>
+                        <div class="iso-tool-title">
+                            <h2>Vehicle / RTO Lookup</h2>
+                            <p>Owner name, vehicle details, insurance, RTO info from registration number</p>
+                        </div>
+                    </div>
+                    <div class="iso-tool-body">
+                        <div class="glass-input-group">
+                            <div class="glass-input-wrapper">
+                                <i class="fas fa-car glass-input-icon"></i>
+                                <input type="text" id="vehicleInput" class="glass-input" placeholder="Enter vehicle number (e.g. MH12DE1234)">
+                            </div>
+                            <button class="glass-btn" onclick="lookupVehicle()"><i class="fas fa-arrow-right"></i> Lookup</button>
+                        </div>
+                        <div class="result-box" id="vehicleResult"></div>
+                    </div>
+                </div>
+                <div class="iso-tool-card-side"></div>
+            </section>
         </div>
     </main>
 
@@ -278,6 +302,51 @@
                 document.getElementById('dnsInput').value = '';
             } catch (e) {
                 showResult('dnsResult', `<div class="error"><i class="fas fa-exclamation-triangle"></i> DNS query failed: ${e.message}</div>`);
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        }
+
+        // ===== VEHICLE LOOKUP =====
+        async function lookupVehicle() {
+            const regNo = document.getElementById('vehicleInput').value.trim().toUpperCase();
+            if (!regNo) return showToast('Enter a vehicle number');
+            const btn = document.querySelector('#vehicle-lookup .glass-btn');
+            setButtonLoading(btn, true);
+            showLoading('vehicleResult');
+            try {
+                const res = await fetch(`/api/vehicle-info/${encodeURIComponent(regNo)}`);
+                const data = await res.json();
+                if (!res.ok || data.error) throw new Error(data.error || 'Vehicle not found');
+                const v = data.response;
+                let html = '<table>';
+                html += `<tr><th>Registration No</th><td>${v.regNo}</td></tr>`;
+                if (v.regAuthority) html += `<tr><th>Registered At</th><td>${v.regAuthority}</td></tr>`;
+                if (v.rtoData && v.rtoData.statename) html += `<tr><th>State</th><td>${v.rtoData.statename}</td></tr>`;
+                if (v.regDate) html += `<tr><th>Registration Date</th><td>${v.regDate}</td></tr>`;
+                if (v.owner) html += `<tr><th>Owner</th><td>${v.owner}</td></tr>`;
+                if (v.ownerFatherName) html += `<tr><th>Father Name</th><td>${v.ownerFatherName}</td></tr>`;
+                if (v.presentAddress) html += `<tr><th>Present Address</th><td>${v.presentAddress}</td></tr>`;
+                if (v.permAddress && v.permAddress !== v.presentAddress) html += `<tr><th>Permanent Address</th><td>${v.permAddress}</td></tr>`;
+                if (v.vehicleClass) html += `<tr><th>Vehicle Class</th><td>${v.vehicleClass}</td></tr>`;
+                if (v.manufacturer) html += `<tr><th>Manufacturer</th><td>${v.manufacturer}</td></tr>`;
+                if (v.vehicle) html += `<tr><th>Model</th><td>${v.vehicle}</td></tr>`;
+                if (v.variant) html += `<tr><th>Variant</th><td>${v.variant}</td></tr>`;
+                if (v.fuelType) html += `<tr><th>Fuel Type</th><td>${v.fuelType}</td></tr>`;
+                if (v.cubicCapacity) html += `<tr><th>Engine (cc)</th><td>${v.cubicCapacity}</td></tr>`;
+                if (v.seatCapacity) html += `<tr><th>Seats</th><td>${v.seatCapacity}</td></tr>`;
+                if (v.chassis) html += `<tr><th>Chassis No</th><td>${v.chassis}</td></tr>`;
+                if (v.engine) html += `<tr><th>Engine No</th><td>${v.engine}</td></tr>`;
+                if (v.insuranceCompanyName) html += `<tr><th>Insurance</th><td>${v.insuranceCompanyName}</td></tr>`;
+                if (v.insuranceUpto) html += `<tr><th>Insurance Upto</th><td>${v.insuranceUpto}</td></tr>`;
+                if (v.puccNumber && v.puccNumber !== 'NA') html += `<tr><th>PUCC</th><td>${v.puccNumber}</td></tr>`;
+                if (v.financerName && v.financerName !== 'On Cash') html += `<tr><th>Financer</th><td>${v.financerName}</td></tr>`;
+                if (v.isCommercial !== undefined) html += `<tr><th>Type</th><td><span class="tag ${v.isCommercial ? 'tag-warn' : 'tag-safe'}">${v.isCommercial ? 'Commercial' : 'Private'}</span></td></tr>`;
+                html += '</table>';
+                showResult('vehicleResult', html);
+                document.getElementById('vehicleInput').value = '';
+            } catch (e) {
+                showResult('vehicleResult', `<div class="error"><i class="fas fa-exclamation-triangle"></i> ${e.message}</div>`);
             } finally {
                 setButtonLoading(btn, false);
             }
