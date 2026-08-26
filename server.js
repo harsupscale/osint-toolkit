@@ -150,6 +150,27 @@ app.get('/api/dns-lookup', async (req, res) => {
     }
 });
 
+// Phone Info Lookup (rack-numinfo API)
+app.get('/api/phone-info/:phone', async (req, res) => {
+    let phone = req.params.phone.replace(/[^0-9]/g, '');
+    if (phone.startsWith('91') && phone.length > 10) {
+        phone = phone.slice(-10);
+    }
+    if (phone.length !== 10) {
+        return res.status(400).json({ error: 'Enter a valid 10-digit Indian number' });
+    }
+    try {
+        const response = await fetch(`https://rack-numinfo.vercel.app/api/lookup?phone=${phone}`);
+        const data = await response.json();
+        if (!response.ok) {
+            return res.status(response.status).json({ error: data.error || 'Lookup failed' });
+        }
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: `Phone lookup failed: ${err.message}` });
+    }
+});
+
 // SPA fallback
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));

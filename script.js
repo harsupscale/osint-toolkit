@@ -134,30 +134,27 @@ async function heroSearchAction() {
                     </table>
                 </div>`;
         } else if (phoneRegex.test(query)) {
-            const clean = query.replace(/[^0-9]/g, '');
-            const res = await fetch('/api/leak-search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: clean, limit: 50 })
-            });
+            const res = await fetch(`/api/phone-info/${encodeURIComponent(query)}`);
             const data = await res.json();
             if (data.error) throw new Error(data.error);
             let rows = '';
-            if (data.List) {
-                for (const [db, entries] of Object.entries(data.List)) {
-                    if (entries && entries.length > 0) {
-                        rows += `<tr><th>${db}</th><td>${entries.map(e => typeof e === 'string' ? e : JSON.stringify(e)).join(', ')}</td></tr>`;
-                    }
-                }
+            if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                data.data.forEach((record, i) => {
+                    if (record.name) rows += `<tr><th>Name</th><td>${record.name}</td></tr>`;
+                    if (record.fname) rows += `<tr><th>Father Name</th><td>${record.fname}</td></tr>`;
+                    if (record.mobile) rows += `<tr><th>Mobile</th><td>${record.mobile}</td></tr>`;
+                    if (record.email) rows += `<tr><th>Email</th><td>${record.email}</td></tr>`;
+                    if (record.circle) rows += `<tr><th>Circle</th><td>${record.circle}</td></tr>`;
+                    if (record.address) rows += `<tr><th>Address</th><td>${record.address.replace(/!/g, ' ')}</td></tr>`;
+                });
             }
             resultBox.innerHTML = `
                 <div class="result-box active">
                     <div class="result-actions"><button onclick="copyToClipboard('${query}', event)"><i class="fas fa-copy"></i> Copy</button></div>
                     <table>
                         <tr><th>Query</th><td>${query}</td></tr>
-                        <tr><th>Databases</th><td>${data.NumOfDatabase || 'N/A'}</td></tr>
-                        <tr><th>Results</th><td>${data.NumOfResults || 'N/A'}</td></tr>
-                        ${rows || '<tr><th>Status</th><td>No leak data found</td></tr>'}
+                        <tr><th>Results</th><td>${data.data?.length || 0}</td></tr>
+                        ${rows || '<tr><th>Status</th><td>No records found</td></tr>'}
                     </table>
                 </div>`;
         } else if (query.includes('.') && !query.includes(' ')) {

@@ -293,70 +293,36 @@
             showLoading('phoneResult');
 
             try {
-                const res = await fetch('/api/leak-search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: phone, limit: 100 })
-                });
+                const res = await fetch(`/api/phone-info/${encodeURIComponent(phone)}`);
                 const data = await res.json();
                 if (!res.ok || data.error) {
-                    let errMsg = data.error || 'Lookup failed';
-                    if (errMsg.includes('too many requests') || errMsg.includes('invalid data') || errMsg.includes('requests again in')) {
-                        errMsg = 'Slow down! Rate limit hit. Try again in a few seconds.';
-                    }
-                    throw new Error(errMsg);
-                }
-                if (!data.NumOfDatabase || data.NumOfDatabase === 'N/A') {
-                    throw new Error('API token expired. Update LEAK_API_TOKEN in .env');
+                    throw new Error(data.error || 'Lookup failed');
                 }
 
                 let html = '<table>';
                 html += `<tr><th>Phone Number</th><td>${phone}</td></tr>`;
-                html += `<tr><th>Leaks Found</th><td><span class="tag tag-danger">${data.NumOfResults || 0}</span></td></tr>`;
-                html += `<tr><th>Databases Searched</th><td>${data.NumOfDatabase || 'N/A'}</td></tr>`;
-                html += `<tr><th>Free Requests Left</th><td>${data.free_requests_left || 'N/A'}</td></tr>`;
-                html += `<tr><th>Search Time</th><td>${data['search time'] || 'N/A'}s</td></tr>`;
 
-                if (data.List && typeof data.List === 'object') {
-                    let resultCount = 0;
-                    Object.entries(data.List).forEach(([dbName, dbData]) => {
-                        if (dbName === 'No results found') {
-                            if (dbData.InfoLeak) {
-                                html += `<tr><td colspan="2" style="color:var(--text-muted);font-style:italic;padding-top:1rem">${dbData.InfoLeak}</td></tr>`;
-                            }
-                            return;
-                        }
-                        html += `<tr><td colspan="2" style="background:var(--bg-card);border-bottom:2px solid var(--danger);padding-top:1rem">
-                            <strong style="color:var(--danger)"><i class="fas fa-database"></i> ${dbName}</strong>
-                            <span class="tag tag-danger" style="margin-left:0.5rem">${dbData.NumOfResults || 0} records</span>
-                        </td></tr>`;
-                        if (dbData.Data && Array.isArray(dbData.Data)) {
-                            dbData.Data.forEach((record) => {
-                                if (typeof record === 'object' && record !== null) {
-                                    resultCount++;
-                                    const keys = Object.keys(record);
-                                    if (keys.length > 0 && !(keys.length === 1 && keys[0] === 'No results found')) {
-                                        html += `<tr><td colspan="2" style="border-bottom:1px solid var(--border);padding-top:0.5rem">
-                                            <strong style="color:var(--info)">Record ${resultCount}</strong>
-                                        </td></tr>`;
-                                        Object.entries(record).forEach(([key, value]) => {
-                                            if (value !== null && value !== undefined && value !== '') {
-                                                let displayVal = typeof value === 'object' ? JSON.stringify(value, null, 2) : value;
-                                                html += `<tr><th>${key}</th><td>${displayVal}</td></tr>`;
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                        if (dbData.InfoLeak && dbData.NumOfResults === 0) {
-                            html += `<tr><td colspan="2" style="color:var(--text-muted);font-style:italic">${dbData.InfoLeak}</td></tr>`;
+                if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                    html += `<tr><th>Records Found</th><td><span class="tag tag-danger">${data.data.length}</span></td></tr>`;
+                    data.data.forEach((record, i) => {
+                        if (record.name || record.fname || record.address || record.mobile || record.email || record.circle) {
+                            html += `<tr><td colspan="2" style="background:var(--bg-card);border-bottom:2px solid var(--accent);padding-top:1rem">
+                                <strong style="color:var(--accent)"><i class="fas fa-user"></i> Record ${i + 1}</strong>
+                            </td></tr>`;
+                            if (record.name) html += `<tr><th>Name</th><td>${record.name}</td></tr>`;
+                            if (record.fname) html += `<tr><th>Father Name</th><td>${record.fname}</td></tr>`;
+                            if (record.mobile) html += `<tr><th>Mobile</th><td>${record.mobile}</td></tr>`;
+                            if (record.alt) html += `<tr><th>Alt Number</th><td>${record.alt}</td></tr>`;
+                            if (record.email) html += `<tr><th>Email</th><td>${record.email}</td></tr>`;
+                            if (record.circle) html += `<tr><th>Circle</th><td>${record.circle}</td></tr>`;
+                            if (record.address) html += `<tr><th>Address</th><td>${record.address.replace(/!/g, ' ')}</td></tr>`;
+                            if (record.id) html += `<tr><th>ID</th><td>${record.id}</td></tr>`;
                         }
                     });
-                    if (resultCount === 0 && data.NumOfResults === 0) {
-                        html += `<tr><td colspan="2" style="color:var(--success);padding-top:1rem"><i class="fas fa-check-circle"></i> No leaks found for this number.</td></tr>`;
-                    }
+                } else {
+                    html += `<tr><td colspan="2" style="color:var(--success);padding-top:1rem"><i class="fas fa-check-circle"></i> No records found for this number.</td></tr>`;
                 }
+
                 html += '</table>';
                 showResult('phoneResult', html);
                 document.getElementById('phoneInput').value = '';
