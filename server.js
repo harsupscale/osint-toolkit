@@ -157,25 +157,6 @@ app.get('/api/email-breaches/:email', async (req, res) => {
     }
 });
 
-// Holehe Account Check (120+ platforms)
-const HOLEHE_API = process.env.HOLEHE_API_URL || 'https://holehe-api.onrender.com';
-app.get('/api/holehe/:email', async (req, res) => {
-    const email = req.params.email;
-    if (!email || !email.includes('@')) {
-        return res.status(400).json({ error: 'Valid email required' });
-    }
-    try {
-        const response = await fetch(`${HOLEHE_API}/check?email=${encodeURIComponent(email)}`);
-        const data = await response.json();
-        if (!response.ok) {
-            return res.status(response.status).json({ error: data.error || 'Holehe lookup failed' });
-        }
-        res.json(data);
-    } catch (err) {
-        res.status(500).json({ error: `Holehe lookup failed: ${err.message}` });
-    }
-});
-
 // DNS Lookup proxy
 app.get('/api/dns-lookup', async (req, res) => {
     const { name, type } = req.query;
