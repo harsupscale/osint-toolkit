@@ -91,6 +91,7 @@ async function heroSearchAction() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
     const phoneRegex = /^\+?[\d\s-]{7,15}$/;
+    const vehicleRegex = /^[A-Z]{2}\d{1,2}[A-Z]{1,3}\d{4}$/i;
 
     try {
         if (emailRegex.test(query)) {
@@ -157,6 +158,32 @@ async function heroSearchAction() {
                         <tr><th>Query</th><td>${query}</td></tr>
                         <tr><th>Results</th><td>${data.data?.length || 0}</td></tr>
                         ${rows || '<tr><th>Status</th><td>No records found</td></tr>'}
+                    </table>
+                </div>`;
+        } else if (vehicleRegex.test(query.replace(/\s+/g, ''))) {
+            const regNo = query.replace(/\s+/g, '').toUpperCase();
+            const res = await fetch(`/api/vehicle-info/${encodeURIComponent(regNo)}`);
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            const v = data.response;
+            let rows = '';
+            if (v.regAuthority) rows += `<tr><th>Registered At</th><td>${v.regAuthority}</td></tr>`;
+            if (v.rtoData && v.rtoData.statename) rows += `<tr><th>State</th><td>${v.rtoData.statename}</td></tr>`;
+            if (v.regDate) rows += `<tr><th>Reg Date</th><td>${v.regDate}</td></tr>`;
+            if (v.owner) rows += `<tr><th>Owner</th><td>${v.owner}</td></tr>`;
+            if (v.ownerFatherName) rows += `<tr><th>Father</th><td>${v.ownerFatherName}</td></tr>`;
+            if (v.presentAddress) rows += `<tr><th>Address</th><td>${v.presentAddress}</td></tr>`;
+            if (v.manufacturer) rows += `<tr><th>Manufacturer</th><td>${v.manufacturer}</td></tr>`;
+            if (v.vehicle) rows += `<tr><th>Model</th><td>${v.vehicle}</td></tr>`;
+            if (v.fuelType) rows += `<tr><th>Fuel</th><td>${v.fuelType}</td></tr>`;
+            if (v.insuranceCompanyName) rows += `<tr><th>Insurance</th><td>${v.insuranceCompanyName}</td></tr>`;
+            if (v.isCommercial !== undefined) rows += `<tr><th>Type</th><td><span class="tag ${v.isCommercial ? 'tag-warn' : 'tag-safe'}">${v.isCommercial ? 'Commercial' : 'Private'}</span></td></tr>`;
+            resultBox.innerHTML = `
+                <div class="result-box active">
+                    <div class="result-actions"><button onclick="copyToClipboard('${regNo}', event)"><i class="fas fa-copy"></i> Copy</button></div>
+                    <table>
+                        <tr><th>Vehicle No</th><td>${v.regNo || regNo}</td></tr>
+                        ${rows}
                     </table>
                 </div>`;
         } else if (query.includes('.') && !query.includes(' ')) {

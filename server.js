@@ -165,6 +165,12 @@ app.get('/api/phone-info/:phone', async (req, res) => {
         if (!response.ok) {
             return res.status(response.status).json({ error: data.error || 'Lookup failed' });
         }
+        if (data.data && data.data.error) {
+            return res.status(429).json({ error: data.data.error });
+        }
+        if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
+            return res.status(404).json({ error: 'No records found for this number' });
+        }
         res.json(data);
     } catch (err) {
         res.status(500).json({ error: `Phone lookup failed: ${err.message}` });
