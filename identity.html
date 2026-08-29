@@ -190,13 +190,44 @@
 
             let domainInfo = '';
             try {
-                const res = await fetch(`/api/email-domain/${encodeURIComponent(domain)}`);
-                const d = await res.json();
+                const res = await fetch(`/api/email-domain/${encodeURIComponent(email)}`);
+                const raw = await res.json();
+                const d = raw.data || raw;
                 domainInfo = `
-                    <tr><th>Domain Country</th><td>${d.country || 'N/A'}</td></tr>
-                    <tr><th>Domain ISP</th><td>${d.org || 'N/A'}</td></tr>
+                    <tr><th>Provider</th><td>${d.Provider || 'N/A'}</td></tr>
+                    <tr><th>Disposable</th><td><span class="tag ${d.Disposable === 'Yes' ? 'tag-danger' : 'tag-safe'}">${d.Disposable || 'No'}</span></td></tr>
+                    <tr><th>Created</th><td>${d['Creation Date'] || 'N/A'}</td></tr>
+                    <tr><th>Expires</th><td>${d['Expiration Date'] || 'N/A'}</td></tr>
+                    <tr><th>Domain IP</th><td>${d['Domain IP'] || 'N/A'}</td></tr>
+                    <tr><th>ISP</th><td>${d.ISP || 'N/A'}</td></tr>
+                    <tr><th>Server Location</th><td>${d['Server Location'] || 'N/A'}</td></tr>
+                    <tr><th>Registrar</th><td>${d.Registrar || 'N/A'}</td></tr>
+                    <tr><th>SSL Issuer</th><td>${d['SSL Issuer'] || 'N/A'}</td></tr>
+                    <tr><th>MX Records</th><td>${(d['MX Records'] || []).join(', ') || 'N/A'}</td></tr>
                 `;
             } catch (e) {}
+
+            let breachHtml = '';
+            try {
+                const br = await fetch(`/api/email-breaches/${encodeURIComponent(email)}`);
+                const bd = await br.json();
+                if (bd.breaches && bd.breaches.length > 0) {
+                    const topBreaches = bd.breaches.slice(0, 50).join(', ');
+                    breachHtml = `<tr><td colspan="2">
+                        <div style="padding-top:1rem">
+                            <strong style="color:var(--danger)"><i class="fas fa-exclamation-triangle"></i> Data Breaches: ${bd.count}</strong>
+                            <div style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem">
+                                ${bd.breaches.slice(0, 50).map(b => `<span style="padding:0.35rem 0.75rem;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.25);border-radius:6px;font-size:0.78rem;color:var(--danger);font-weight:600">${b}</span>`).join('')}
+                            </div>
+                            ${bd.breaches.length > 50 ? `<p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem">...and ${bd.breaches.length - 50} more breaches</p>` : ''}
+                        </div>
+                    </td></tr>`;
+                } else {
+                    breachHtml = `<tr><td colspan="2" style="color:var(--success);padding-top:1rem"><i class="fas fa-check-circle"></i> No breaches found for this email.</td></tr>`;
+                }
+            } catch (e) {
+                breachHtml = `<tr><td colspan="2" style="color:var(--text-muted);padding-top:1rem"><i class="fas fa-info-circle"></i> Breach check unavailable.</td></tr>`;
+            }
 
             showResult('emailResult', `
                 <div class="result-actions"><button onclick="copyToClipboard('${email}', event)"><i class="fas fa-copy"></i> Copy Email</button></div>
@@ -207,8 +238,35 @@
                     <tr><th>Domain</th><td>${domain}</td></tr>
                     <tr><th>Gravatar</th><td><a href="https://gravatar.com/${md5}" target="_blank" style="color:var(--accent)">View Gravatar</a></td></tr>
                     ${domainInfo}
+                    ${breachHtml}
+                    <tr><td colspan="2" id="holeheSection" style="padding-top:1rem">
+                        <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted)">
+                            <i class="fas fa-spinner fa-spin" style="color:var(--accent)"></i>
+                            <span style="font-size:0.78rem">Checking accounts on 120+ platforms...</span>
+                        </div>
+                    </td></tr>
                 </table>
             `);
+
+            // Holehe account check (runs async, takes 30-60s)
+            fetch(`/api/holehe/${encodeURIComponent(email)}`).then(r => r.json()).then(hd => {
+                const section = document.getElementById('holeheSection');
+                if (!section) return;
+                if (hd.found && hd.found_count > 0) {
+                    section.innerHTML = `
+                        <div>
+                            <strong style="color:var(--accent)"><i class="fas fa-user-check"></i> Accounts Found: ${hd.found_count}</strong>
+                            <div style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem">
+                                ${hd.found.map(p => '<span style="padding:0.35rem 0.75rem;background:rgba(0,180,255,0.08);border:1px solid rgba(0,180,255,0.25);border-radius:6px;font-size:0.78rem;color:var(--accent);font-weight:600"><i class="fas fa-check-circle" style="margin-right:0.3rem"></i>' + p.platform + '</span>').join('')}
+                            </div>
+                        </div>`;
+                } else {
+                    section.innerHTML = `<div style="color:var(--text-muted);font-size:0.78rem"><i class="fas fa-info-circle"></i> No accounts found on checked platforms.</div>`;
+                }
+            }).catch(() => {
+                const section = document.getElementById('holeheSection');
+                if (section) section.innerHTML = `<div style="color:var(--text-muted);font-size:0.78rem"><i class="fas fa-info-circle"></i> Account check unavailable.</div>`;
+            });
             document.getElementById('emailInput').value = '';
             setButtonLoading(btn, false);
         }

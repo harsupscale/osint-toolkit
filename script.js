@@ -96,20 +96,44 @@ async function heroSearchAction() {
     try {
         if (emailRegex.test(query)) {
             const domain = query.split('@')[1];
-            const res = await fetch(`/api/email-domain/${domain}`);
+            const [res, br] = await Promise.all([
+                fetch(`/api/email-domain/${encodeURIComponent(query)}`),
+                fetch(`/api/email-breaches/${encodeURIComponent(query)}`).catch(() => null)
+            ]);
             const data = await res.json();
             if (data.error) throw new Error(data.error);
+            const d = data.data || data;
+            let breachHtml = '';
+            if (br) {
+                const bd = await br.json().catch(() => null);
+                if (bd && bd.breaches && bd.breaches.length > 0) {
+                    breachHtml = `<tr><td colspan="2"><div style="padding-top:1rem">
+                        <strong style="color:var(--danger)"><i class="fas fa-exclamation-triangle"></i> Data Breaches: ${bd.count}</strong>
+                        <div style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem">
+                            ${bd.breaches.slice(0, 50).map(b => '<span style="padding:0.35rem 0.75rem;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.25);border-radius:6px;font-size:0.78rem;color:var(--danger);font-weight:600">' + b + '</span>').join('')}
+                        </div>
+                        ${bd.breaches.length > 50 ? '<p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem">...and ' + (bd.breaches.length - 50) + ' more</p>' : ''}
+                    </div></td></tr>`;
+                } else if (bd) {
+                    breachHtml = '<tr><td colspan="2" style="color:var(--success);padding-top:1rem"><i class="fas fa-check-circle"></i> No breaches found.</td></tr>';
+                }
+            }
             resultBox.innerHTML = `
                 <div class="result-box active">
                     <div class="result-actions"><button onclick="copyToClipboard('${query}', event)"><i class="fas fa-copy"></i> Copy</button></div>
                     <table>
-                        <tr><th>Email</th><td>${query}</td></tr>
-                        <tr><th>Domain</th><td>${domain}</td></tr>
-                        <tr><th>Country</th><td>${data.country || 'N/A'} (${data.countryCode || ''})</td></tr>
-                        <tr><th>Region</th><td>${data.regionName || 'N/A'}, ${data.city || 'N/A'}</td></tr>
-                        <tr><th>ISP</th><td>${data.isp || 'N/A'}</td></tr>
-                        <tr><th>Org</th><td>${data.org || 'N/A'}</td></tr>
-                        <tr><th>AS</th><td>${data.as || 'N/A'}</td></tr>
+                        <tr><th>Email</th><td>${d.Email || query}</td></tr>
+                        <tr><th>Provider</th><td>${d.Provider || 'N/A'}</td></tr>
+                        <tr><th>Disposable</th><td><span class="tag ${d.Disposable === 'Yes' ? 'tag-danger' : 'tag-safe'}">${d.Disposable || 'No'}</span></td></tr>
+                        <tr><th>Created</th><td>${d['Creation Date'] || 'N/A'}</td></tr>
+                        <tr><th>Expires</th><td>${d['Expiration Date'] || 'N/A'}</td></tr>
+                        <tr><th>Domain IP</th><td>${d['Domain IP'] || 'N/A'}</td></tr>
+                        <tr><th>ISP</th><td>${d.ISP || 'N/A'}</td></tr>
+                        <tr><th>Server Location</th><td>${d['Server Location'] || 'N/A'}</td></tr>
+                        <tr><th>Registrar</th><td>${d.Registrar || 'N/A'}</td></tr>
+                        <tr><th>SSL Issuer</th><td>${d['SSL Issuer'] || 'N/A'}</td></tr>
+                        <tr><th>MX Records</th><td>${(d['MX Records'] || []).join(', ') || 'N/A'}</td></tr>
+                        ${breachHtml}
                     </table>
                 </div>`;
         } else if (ipRegex.test(query)) {

@@ -126,7 +126,7 @@ app.get('/api/ip-lookup/:ip', async (req, res) => {
 app.get('/api/email-domain/:domain', async (req, res) => {
     const domain = req.params.domain;
     try {
-        const response = await fetch(`http://ip-api.com/json/${domain}?fields=status,message,country,countryCode,regionName,city,isp,org,as,query`);
+        const response = await fetch(`https://rack-72au.onrender.com/gmail-info?q=${encodeURIComponent(domain)}`);
         const data = await response.json();
         if (data.status === 'fail') {
             return res.status(400).json({ error: data.message || 'Invalid domain' });
@@ -134,6 +134,45 @@ app.get('/api/email-domain/:domain', async (req, res) => {
         res.json(data);
     } catch (err) {
         res.status(500).json({ error: `Domain lookup failed: ${err.message}` });
+    }
+});
+
+// Email Breach Lookup (XposedOrNot - free, no API key)
+app.get('/api/email-breaches/:email', async (req, res) => {
+    const email = req.params.email;
+    try {
+        const response = await fetch(`https://api.xposedornot.com/v1/check-email/${encodeURIComponent(email)}`);
+        const data = await response.json();
+        if (data.breaches && Array.isArray(data.breaches)) {
+            res.json({
+                email: data.email || email,
+                breaches: data.breaches,
+                count: data.breaches.length
+            });
+        } else {
+            res.json({ email, breaches: [], count: 0 });
+        }
+    } catch (err) {
+        res.status(500).json({ error: `Breach lookup failed: ${err.message}` });
+    }
+});
+
+// Holehe Account Check (120+ platforms)
+const HOLEHE_API = process.env.HOLEHE_API_URL || 'https://holehe-api.onrender.com';
+app.get('/api/holehe/:email', async (req, res) => {
+    const email = req.params.email;
+    if (!email || !email.includes('@')) {
+        return res.status(400).json({ error: 'Valid email required' });
+    }
+    try {
+        const response = await fetch(`${HOLEHE_API}/check?email=${encodeURIComponent(email)}`);
+        const data = await response.json();
+        if (!response.ok) {
+            return res.status(response.status).json({ error: data.error || 'Holehe lookup failed' });
+        }
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: `Holehe lookup failed: ${err.message}` });
     }
 });
 
