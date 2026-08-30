@@ -157,45 +157,23 @@ app.get('/api/email-breaches/:email', async (req, res) => {
     }
 });
 
-// Email Account Check — checks if email is registered on platforms (pure Node.js, no external service)
-app.get('/api/email-accounts/:email', async (req, res) => {
+// Holehe Account Check (120+ platforms via Python API)
+const HOLEHE_API = process.env.HOLEHE_API_URL || 'https://osint-toolkit-1-2qau.onrender.com';
+app.get('/api/holehe/:email', async (req, res) => {
     const email = req.params.email;
     if (!email || !email.includes('@')) {
         return res.status(400).json({ error: 'Valid email required' });
     }
-
-    const check = async (name, fn) => {
-        try {
-            const exists = await Promise.race([fn(), new Promise((_,r) => setTimeout(() => r(new Error('timeout')), 5000))]);
-            return { name, exists: !!exists };
-        } catch { return { name, exists: false }; }
-    };
-
-    const results = await Promise.all([
-        check('Instagram', async () => { const r = await fetch('https://www.instagram.com/accounts/web/', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:`email=${encodeURIComponent(email)}&real_djlg=true`, redirect:'manual' }); return r.status===302||r.status===200; }),
-        check('GitHub', async () => { const r = await fetch('https://github.com/session', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded','User-Agent':'Mozilla/5.0'}, body:`authenticity_token=&login=${encodeURIComponent(email)}&password=fake123`, redirect:'manual' }); return r.status===302; }),
-        check('Spotify', async () => { const r = await fetch('https://spclient.wg.spotify.com/signup/public/v1/account?validate=1&email='+encodeURIComponent(email), {headers:{'User-Agent':'Mozilla/5.0'}}); return (await r.text()).includes('true'); }),
-        check('Discord', async () => { const r = await fetch('https://discord.com/api/v9/auth/verify', { method:'POST', headers:{'Content-Type':'application/json','User-Agent':'Mozilla/5.0'}, body:JSON.stringify({email}), redirect:'manual' }); return r.status!==404; }),
-        check('Snapchat', async () => { const r = await fetch('https://accounts.snapchat.com/accounts/v1/begin_reset_password', { method:'POST', headers:{'Content-Type':'application/json','User-Agent':'Mozilla/5.0'}, body:JSON.stringify({email,username:''}) }); return r.status===200; }),
-        check('Pinterest', async () => { const r = await fetch('https://www.pinterest.com/resource/EmailExistsResource/get/?data='+encodeURIComponent(JSON.stringify({options:{email}})), {headers:{'User-Agent':'Mozilla/5.0'}}); return (await r.text()).includes('"exists":true'); }),
-        check('Tumblr', async () => { const r = await fetch('https://www.tumblr.com/api/v2/account/lookup', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded','User-Agent':'Mozilla/5.0'}, body:`email=${encodeURIComponent(email)}` }); return r.status===200; }),
-        check('Twitch', async () => { const r = await fetch('https://passport.twitch.tv/forgot/password/send', { method:'POST', headers:{'Content-Type':'application/json','User-Agent':'Mozilla/5.0'}, body:JSON.stringify({email,login:''}) }); return r.status===200; }),
-        check('Quora', async () => { const r = await fetch('https://www.quora.com/registered_email_send_status', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded','User-Agent':'Mozilla/5.0'}, body:`email=${encodeURIComponent(email)}` }); return r.status===200; }),
-        check('Medium', async () => { const r = await fetch('https://medium.com/_/api/1.1/users/exists?email='+encodeURIComponent(email), {headers:{'User-Agent':'Mozilla/5.0'}}); const t=await r.text(); return t.includes('"exists":true')||t.includes('"hasPassword":true'); }),
-        check('Keybase', async () => { const r = await fetch('https://keybase.io/_/api/1.0/user/lookup.json?email='+encodeURIComponent(email), {headers:{'User-Agent':'Mozilla/5.0'}}); const t=await r.text(); return t.includes('"them":[')&&!t.includes('"them":[]'); }),
-        check('Replit', async () => { const r = await fetch('https://replit.com/api/user/find', { method:'POST', headers:{'Content-Type':'application/json','User-Agent':'Mozilla/5.0'}, body:JSON.stringify({query:email}) }); return r.status===200; }),
-        check('Wattpad', async () => { const r = await fetch('https://www.wattpad.com/api/v3/account/validate/'+encodeURIComponent(email), {headers:{'User-Agent':'Mozilla/5.0'}}); return r.status===200; }),
-        check('Canva', async () => { const r = await fetch('https://www.canva.com/signup/check-email', { method:'POST', headers:{'Content-Type':'application/json','User-Agent':'Mozilla/5.0'}, body:JSON.stringify({email}) }); return r.status===200; }),
-        check('Figma', async () => { const r = await fetch('https://www.figma.com/api/signup/check-email', { method:'POST', headers:{'Content-Type':'application/json','User-Agent':'Mozilla/5.0'}, body:JSON.stringify({email}) }); return r.status===200; }),
-        check('Duolingo', async () => { const r = await fetch('https://www.duolingo.com/2017-06-30/users?email='+encodeURIComponent(email), {headers:{'User-Agent':'Mozilla/5.0'}}); const t=await r.text(); return t.includes('"users":[')&&!t.includes('"users":[]'); }),
-        check('Slack', async () => { const r = await fetch('https://slack.com/api/auth.findTeamBySubdomain', { method:'POST', headers:{'Content-Type':'application/json','User-Agent':'Mozilla/5.0'}, body:JSON.stringify({email}) }); return r.status===200; }),
-        check('Notion', async () => { const r = await fetch('https://www.notion.so/api/v3/signup', { method:'POST', headers:{'Content-Type':'application/json','User-Agent':'Mozilla/5.0'}, body:JSON.stringify({email,source:'signup'}) }); return r.status===200; }),
-        check('Ebay', async () => { const r = await fetch('https://www.ebay.com/signin/forgotpassword', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded','User-Agent':'Mozilla/5.0'}, body:`email=${encodeURIComponent(email)}`, redirect:'manual' }); return r.status===302||r.status===200; }),
-        check('Zoho', async () => { const r = await fetch('https://accounts.zoho.com/apibytype/smaccounts/getaccountidbysociallogin', { method:'POST', headers:{'Content-Type':'application/json','User-Agent':'Mozilla/5.0'}, body:JSON.stringify({email}) }); return r.status===200; }),
-    ]);
-
-    const found = results.filter(r => r.exists).map(r => r.name);
-    res.json({ email, found, found_count: found.length, checked_count: results.length });
+    try {
+        const response = await fetch(`${HOLEHE_API}/check?email=${encodeURIComponent(email)}`);
+        const data = await response.json();
+        if (!response.ok) {
+            return res.status(response.status).json({ error: data.error || 'Holehe lookup failed' });
+        }
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: `Holehe lookup failed: ${err.message}` });
+    }
 });
 
 // DNS Lookup proxy
