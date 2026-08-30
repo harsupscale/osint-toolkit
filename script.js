@@ -134,8 +134,52 @@ async function heroSearchAction() {
                         <tr><th>SSL Issuer</th><td>${d['SSL Issuer'] || 'N/A'}</td></tr>
                         <tr><th>MX Records</th><td>${(d['MX Records'] || []).join(', ') || 'N/A'}</td></tr>
                         ${breachHtml}
+                        <tr><td colspan="2" id="heroHoleheSection" style="padding-top:1rem">
+                            <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted)">
+                                <i class="fas fa-spinner fa-spin" style="color:var(--accent)"></i>
+                                <span style="font-size:0.78rem">Checking accounts on 120+ platforms...</span>
+                            </div>
+                        </td></tr>
                     </table>
                 </div>`;
+
+            const platformIcons = {
+                instagram: 'fab fa-instagram', twitter: 'fab fa-twitter', facebook: 'fab fa-facebook',
+                snapchat: 'fab fa-snapchat', pinterest: 'fab fa-pinterest', tumblr: 'fab fa-tumblr',
+                spotify: 'fab fa-spotify', discord: 'fab fa-discord', github: 'fab fa-github',
+                gitlab: 'fab fa-gitlab', bitbucket: 'fab fa-bitbucket', docker: 'fab fa-docker',
+                reddit: 'fab fa-reddit', flickr: 'fab fa-flickr', soundcloud: 'fab fa-soundcloud',
+                twitch: 'fab fa-twitch', imgur: 'fab fa-imgur', keybase: 'fab fa-keybase',
+                amazon: 'fab fa-amazon', ebay: 'fab fa-ebay', etsy: 'fab fa-etsy',
+                medium: 'fab fa-medium', patreon: 'fab fa-patreon', wattpad: 'fas fa-pen-fancy',
+                replit: 'fas fa-code', duolingo: 'fas fa-graduation-cap', strava: 'fas fa-running',
+                venmo: 'fas fa-dollar-sign', nike: 'fas fa-shoe-prints', samsung: 'fas fa-mobile-alt',
+                adobe: 'fab fa-adobe', firefox: 'fab fa-firefox', lastpass: 'fas fa-key',
+                office365: 'fab fa-microsoft', protonmail: 'fas fa-envelope', mail_ru: 'fas fa-at',
+                aboutme: 'fas fa-user', zoho: 'fas fa-briefcase', hubspot: 'fas fa-chart-line',
+                wordpress: 'fab fa-wordpress', gravatar: 'fas fa-user-circle', slack: 'fab fa-slack',
+                notion: 'fas fa-sticky-note', canva: 'fas fa-palette', figma: 'fab fa-figma',
+                quora: 'fas fa-question', codecademy: 'fas fa-laptop-code', freelancer: 'fas fa-briefcase',
+                bodybuilding: 'fas fa-dumbbell', vrbo: 'fas fa-home', blablacar: 'fas fa-car',
+                archive: 'fas fa-archive', lastfm: 'fab fa-lastfm', smule: 'fas fa-music',
+                vsco: 'fas fa-camera', xing: 'fab fa-xing', rocketreach: 'fas fa-rocket'
+            };
+            fetch('/api/holehe/' + encodeURIComponent(query)).then(function(r){ return r.json(); }).then(function(hd){
+                var section = document.getElementById('heroHoleheSection');
+                if (!section) return;
+                if (hd.found && hd.found_count > 0) {
+                    section.innerHTML = '<div><strong style="color:var(--accent)"><i class="fas fa-user-check"></i> Accounts Found: ' + hd.found_count + '</strong><div style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem">' +
+                        hd.found.map(function(p){
+                            var icon = platformIcons[p.platform.toLowerCase()] || 'fas fa-globe';
+                            return '<a href="https://' + p.domain + '" target="_blank" style="text-decoration:none;padding:0.4rem 0.85rem;background:rgba(0,180,255,0.08);border:1px solid rgba(0,180,255,0.25);border-radius:6px;font-size:0.78rem;color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer"><i class="' + icon + '" style="font-size:0.85rem"></i>' + p.platform + '</a>';
+                        }).join('') + '</div></div>';
+                } else {
+                    section.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem"><i class="fas fa-info-circle"></i> No accounts found.</div>';
+                }
+            }).catch(function(){
+                var section = document.getElementById('heroHoleheSection');
+                if (section) section.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem"><i class="fas fa-spinner fa-spin" style="color:var(--accent)"></i> Service waking up...</div>';
+            });
         } else if (ipRegex.test(query)) {
             const res = await fetch(`/api/ip-lookup/${query}`);
             const data = await res.json();
