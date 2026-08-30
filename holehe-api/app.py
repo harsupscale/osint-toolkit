@@ -51,9 +51,22 @@ def check_email():
     try:
         async def run_checks():
             out = []
-            client = httpx.AsyncClient(timeout=8)
+            client = httpx.AsyncClient(timeout=12)
             tasks = [run_one(m, email, client, out) for m in ALL_MODULES]
             await asyncio.gather(*tasks)
+
+            # retry failed modules with longer timeout
+            found_names = {r.get("name") for r in out if isinstance(r, dict)}
+            missing = [m for m in ALL_MODULES if not any(
+                isinstance(r, dict) and r.get("name") == getattr(m, '__name__', '').split('.')[-1]
+                for r in out
+            )]
+            if missing:
+                client2 = httpx.AsyncClient(timeout=15)
+                retry_tasks = [run_one(m, email, client2, out) for m in missing]
+                await asyncio.gather(*retry_tasks)
+                await client2.aclose()
+
             await client.aclose()
             return out
 
