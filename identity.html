@@ -242,30 +242,30 @@
                     <tr><td colspan="2" id="holeheSection" style="padding-top:1rem">
                         <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted)">
                             <i class="fas fa-spinner fa-spin" style="color:var(--accent)"></i>
-                            <span style="font-size:0.78rem">Checking accounts on 120+ platforms (Holehe)...</span>
+                            <span style="font-size:0.78rem">Checking accounts on 20 platforms...</span>
                         </div>
                     </td></tr>
                 </table>
             `);
 
-            // Holehe account check (runs async, takes 30-60s)
-            fetch(`/api/holehe/${encodeURIComponent(email)}`).then(r => r.json()).then(hd => {
+            // Account check (runs async, 5-10s)
+            fetch(`/api/email-accounts/${encodeURIComponent(email)}`).then(r => r.json()).then(ad => {
                 const section = document.getElementById('holeheSection');
                 if (!section) return;
-                if (hd.found && hd.found_count > 0) {
+                if (ad.found && ad.found_count > 0) {
                     section.innerHTML = `
                         <div>
-                            <strong style="color:var(--accent)"><i class="fas fa-user-check"></i> Accounts Found: ${hd.found_count}</strong>
+                            <strong style="color:var(--accent)"><i class="fas fa-user-check"></i> Accounts Found: ${ad.found_count} / ${ad.checked_count}</strong>
                             <div style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem">
-                                ${hd.found.map(p => '<span style="padding:0.35rem 0.75rem;background:rgba(0,180,255,0.08);border:1px solid rgba(0,180,255,0.25);border-radius:6px;font-size:0.78rem;color:var(--accent);font-weight:600"><i class="fas fa-check-circle" style="margin-right:0.3rem"></i>' + p.platform + '</span>').join('')}
+                                ${ad.found.map(p => '<span style="padding:0.35rem 0.75rem;background:rgba(0,180,255,0.08);border:1px solid rgba(0,180,255,0.25);border-radius:6px;font-size:0.78rem;color:var(--accent);font-weight:600"><i class="fas fa-check-circle" style="margin-right:0.3rem"></i>' + p + '</span>').join('')}
                             </div>
                         </div>`;
                 } else {
-                    section.innerHTML = `<div style="color:var(--text-muted);font-size:0.78rem"><i class="fas fa-info-circle"></i> No accounts found on checked platforms.</div>`;
+                    section.innerHTML = `<div style="color:var(--text-muted);font-size:0.78rem"><i class="fas fa-info-circle"></i> No accounts found on ${ad.checked_count} checked platforms.</div>`;
                 }
             }).catch(() => {
                 const section = document.getElementById('holeheSection');
-                if (section) section.innerHTML = `<div style="color:var(--text-muted);font-size:0.78rem"><i class="fas fa-info-circle"></i> Account check unavailable. Make sure Holehe API is deployed.</div>`;
+                if (section) section.innerHTML = `<div style="color:var(--text-muted);font-size:0.78rem"><i class="fas fa-info-circle"></i> Account check unavailable.</div>`;
             });
             document.getElementById('emailInput').value = '';
             setButtonLoading(btn, false);
